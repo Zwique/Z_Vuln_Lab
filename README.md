@@ -26,59 +26,36 @@ shell_exec("id");
 
 # Features of This Lab
 
-PHP 7.4 backend with intentionally insecure code
+- PHP 7.4 backend with intentionally insecure code
 
-Custom template engine supporting full RCE
+- Custom template engine supporting full RCE
 
-LFI vulnerability in render.php?page=
+- LFI vulnerability in `render.php?page=`
 
-Weak login system
+- Weak login system
 
-Unsafe file upload endpoint
+- Unsafe file upload endpoint
 
-Supports:
+- Supports:
 
-Local File Inclusion (LFI)
+    - Local File Inclusion (LFI)
 
-Remote Code Execution (RCE)
+    - Remote Code Execution (RCE)
 
-MySQL-backed login
+- Simple HTML/JS frontend
 
-Simple HTML/JS frontend
-
-Dockerized for easy deployment
-
-
-Features of This Lab
-
-PHP 7.4 backend with intentionally insecure code
-
-Custom template engine supporting full RCE
-
-LFI vulnerability in render.php?page=
-
-Weak login system
-
-Unsafe file upload endpoint
-
-Supports:
-
-Local File Inclusion (LFI)
-
-Remote Code Execution (RCE)
-
-MySQL-backed login
-
-Simple HTML/JS frontend
-
-Dockerized for easy deployment
+- Dockerized for easy deployment
+- 
+> [!NOTE]
+> PHP 7.4 backend with intentionally insecure code
 
 🚀 Running the Machine
 
 Build and start:
 
-docker-compose build
+```docker-compose build
 docker-compose up
+```
 
 
 ## Access at:
@@ -87,12 +64,15 @@ http://localhost:8080/
 
 🧪 Exploitation Examples
 RCE (Template Injection)
-POST /api/render.php
+```POST /api/render.php
 page={{ id }}
-
+```
 LFI (Read System Files)
+```
 GET /api/render.php?page=../../../../etc/passwd
-
-Using the Provided PoC Script
+```
+### Using the Provided PoC Script
+```
 python3 exp.py lfi /etc/passwd
 python3 exp.py rce "id"
+```
