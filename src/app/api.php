@@ -3,6 +3,41 @@ require_once "config.php";
 require_once "util.php";
 session_start();
 
+/* ===== Helpers (STYLE ONLY) ===== */
+
+function render_page($title, $body) {
+    echo <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{$title}</title>
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="card">
+    {$body}
+    <br>
+    <a class="btn" href="dashboard.php">← Back</a>
+  </div>
+</div>
+
+</body>
+</html>
+HTML;
+    exit;
+}
+
+function require_auth() {
+    if (!isset($_SESSION['user'])) {
+        render_page("Auth required", "<h3>Authentication required</h3>");
+    }
+}
+
+/* ===== Router ===== */
+
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
@@ -22,10 +57,12 @@ switch ($action) {
             $_SESSION['user'] = $row['username'];
             header("Location: dashboard.php");
             exit;
-        } else {
-            echo "Invalid.";
-            exit;
         }
+
+        render_page(
+            "Login Failed",
+            "<h3>❌ Invalid credentials</h3>"
+        );
 
     /* ================= LOGOUT ================= */
 
@@ -37,7 +74,7 @@ switch ($action) {
     /* ================= SQLi → FILE WRITE ================= */
 
     case "load_note_to_template":
-        if (!isset($_SESSION['user'])) die("auth required");
+        require_auth();
 
         $title = $_GET['title'] ?? '';
 
@@ -50,45 +87,65 @@ switch ($action) {
                 "/tmp/template_" . session_id(),
                 $row['content']
             );
-            echo "template loaded";
-        } else {
-            echo "no note";
+
+            render_page(
+                "Template Loaded",
+                "<h3>✅ Template loaded from database</h3>
+                 <pre class='output'>" . htmlspecialchars($row['content']) . "</pre>"
+            );
         }
-        exit;
+
+        render_page(
+            "No Note",
+            "<h3>⚠️ No note found</h3>"
+        );
 
     /* ================= MANUAL TEMPLATE SAVE ================= */
 
     case "render_template":
-        if (!isset($_SESSION['user'])) die("auth required");
+        require_auth();
 
         $tpl = $_POST['template'] ?? '';
+
         file_put_contents(
             "/tmp/template_" . session_id(),
             $tpl
         );
-        echo "template saved";
-        exit;
+
+        render_page(
+            "Template Saved",
+            "<h3>💾 Template saved</h3>
+             <pre class='output'>" . htmlspecialchars($tpl) . "</pre>"
+        );
 
     /* ================= SSTI → RCE ================= */
 
     case "preview":
-        if (!isset($_SESSION['user'])) die("auth required");
+        require_auth();
 
         $path = "/tmp/template_" . session_id();
-        if (!file_exists($path)) die("no template");
+        if (!file_exists($path)) {
+            render_page("Error", "<h3>❌ No template found</h3>");
+        }
 
-        echo dangerous_template_render(
+        $output = dangerous_template_render(
             file_get_contents($path)
         );
-        exit;
+
+        render_page(
+            "Template Output",
+            "<h3>🧨 Rendered Output</h3>
+             <pre class='output'>{$output}</pre>"
+        );
 
     /* ================= MISC ================= */
 
     case "ping":
-        echo "pong";
-        exit;
+        render_page("Ping", "<pre class='output'>pong</pre>");
 
     default:
-        echo "unknown action";
-        exit;
+        render_page(
+            "Unknown Action",
+            "<h3>❓ Unknown action</h3>"
+        );
 }

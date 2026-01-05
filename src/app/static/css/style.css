@@ -1,0 +1,112 @@
+/* ====== Base ====== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #020617, #000);
+  color: #e5e7eb;
+  font-family: system-ui, monospace;
+  min-height: 100vh;
+}
+
+/* ====== Layout ====== */
+.wrapper {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem;
+}
+
+.card {
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.08);
+}
+
+/* ====== Header ====== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  padding: 1rem 2rem;
+}
+
+.header a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+/* ====== Typography ====== */
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+.subtext {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* ====== Inputs ====== */
+input, textarea {
+  width: 100%;
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.6rem;
+  color: #e5e7eb;
+  font-family: monospace;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #64748b;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ====== Buttons ====== */
+button, .btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #38bdf8;
+  background: transparent;
+  color: #38bdf8;
+  cursor: pointer;
+}
+
+button:hover, .btn:hover {
+  background: #38bdf8;
+  color: #020617;
+}
+
+/* ====== Labels ====== */
+.danger {
+  color: #f87171;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+/* ====== Output ====== */
+.output {
+  background: #000;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+/* ====== Footer ====== */
+.footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2rem;
+}

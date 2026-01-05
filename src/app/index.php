@@ -1,21 +1,33 @@
-<?php
-require_once "config.php";
-session_start();
-
-if (isset($_SESSION['user'])) {
-    header("Location: dashboard.php");
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html>
-<head><title>Vuln Lab</title></head>
+<head>
+  <title>SSTI Vuln Lab</title>
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
 <body>
-<h1>Welcome</h1>
-<form method="POST" action="api.php?action=login">
-    <input name="username" placeholder="username"><br>
-    <input type="password" name="password" placeholder="password"><br>
-    <button>Login</button>
-</form>
+
+<div class="wrapper">
+  <div class="card">
+    <h1>🧪 SSTI Vuln Lab</h1>
+    <p class="subtext">Intentionally vulnerable login portal</p>
+
+    <form method="POST" action="api.php?action=login">
+      <input name="username" placeholder="username">
+      <br><br>
+      <input type="password" name="password" placeholder="password">
+      <br><br>
+      <button>Login</button>
+    </form>
+
+    <div class="subtext" style="margin-top:1rem">
+      ⚠️ Do not deploy on the internet
+    </div>
+  </div>
+
+  <div class="footer">
+    Beginner‑friendly exploitation lab
+  </div>
+</div>
+
 </body>
 </html>

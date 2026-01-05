@@ -1,31 +1,53 @@
-<?php
-require_once "config.php";
-require_once "util.php";
-session_start();
-
-if (!isset($_SESSION['user'])) {
-    header("Location: index.php");
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html>
-<head><title>Dashboard</title></head>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
 <body>
 
-<h2>Hello <?php echo $_SESSION['user']; ?></h2>
-<a href="api.php?action=logout">Logout</a>
+<div class="header">
+  <div>🧪 SSTI Lab</div>
+  <div>
+    Hello <strong><?= $_SESSION['user'] ?></strong> ·
+    <a href="api.php?action=logout">Logout</a>
+  </div>
+</div>
 
-<h3>Save Template</h3>
-<form method="POST" action="api.php?action=render_template">
-<textarea name="template" rows="6" cols="60">
-Hello {{ id }}
-</textarea><br>
-<button>Save</button>
-</form>
+<div class="wrapper">
 
-<h3>Preview</h3>
-<a href="api.php?action=preview">Render Template</a>
+  <div class="card">
+    <h3>
+      Save Template
+      <span class="danger">UNSAFE</span>
+    </h3>
+
+    <p class="subtext">
+      This template is rendered server‑side without sanitization.
+    </p>
+
+    <form method="POST" action="api.php?action=render_template">
+      <textarea
+        name="template"
+        rows="6"
+        placeholder="Hello User !!!"
+        ></textarea>
+
+      <br><br>
+      <button>Save Template</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Preview</h3>
+    <p class="subtext">
+      Execute the template using the server template engine.
+    </p>
+
+    <a class="btn" href="api.php?action=preview">Render Template</a>
+  </div>
+
+</div>
 
 </body>
 </html>
