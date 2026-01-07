@@ -9,7 +9,7 @@ It is ideal for:
 
 > ⚠️ **WARNING**  
 > This application is intentionally insecure.  
-> **Never deploy it on the internet or in a production environment.**
+> **Never deploy it on the internet or in a production environment.** 
 
 ---
 
