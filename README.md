@@ -4,7 +4,7 @@ This project is a **deliberately vulnerable PHP web application** created for **
 
 It is ideal for:
 - ✅ Web security beginners  
-- ✅ CTF-style practice  
+- ✅ CTF-style practice   
 - ✅ Learning how vulnerabilities chain together in real applications  
 
 > ⚠️ **WARNING**  
