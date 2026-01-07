@@ -71,7 +71,7 @@ The application will be available at:
 ```
 http://localhost:8080
 ```
-To Stop the lab:
+To Stop the lab: 
 
 ```
 docker-compose down
