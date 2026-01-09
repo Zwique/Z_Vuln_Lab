@@ -4,7 +4,7 @@ require_once "util.php";
 session_start();
 
 /* ===== Helpers (STYLE ONLY) ===== */
-
+ 
 function render_page($title, $body) {
     echo <<<HTML
 <!DOCTYPE html>
@@ -35,7 +35,7 @@ function require_auth() {
         render_page("Auth required", "<h3>Authentication required</h3>");
     }
 }
-
+ 
 /* ===== Router ===== */
 
 $action = $_GET['action'] ?? '';
