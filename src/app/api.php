@@ -3,34 +3,26 @@ require_once "config.php";
 require_once "util.php";
 session_start();
 
-<<<<<<< Updated upstream
-/* ===== Helpers (STYLE ONLY) ===== */
- 
-function render_page($title, $body) {
-=======
 /* ===== Helpers ===== */
 
 function render_page(string $title, string $body) {
->>>>>>> Stashed changes
-    echo <<<HTML
-<!DOCTYPE html>
+    echo "<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset='UTF-8'>
   <title>{$title}</title>
-  <link rel="stylesheet" href="static/css/style.css">
+  <link rel='stylesheet' href='static/css/style.css'>
 </head>
 <body>
-<div class="wrapper">
-  <div class="card">
+<div class='wrapper'>
+  <div class='card'>
     {$body}
     <br><br>
-    <a class="btn" href="dashboard.php">← Back</a>
+    <a class='btn' href='dashboard.php'>← Back</a>
   </div>
 </div>
 </body>
-</html>
-HTML;
+</html>";
     exit;
 }
 
@@ -39,7 +31,7 @@ function require_auth() {
         render_page("Auth Required", "<h3>❌ Login required</h3>");
     }
 }
- 
+
 /* ===== Router ===== */
 
 $action = $_GET['action'] ?? '';
@@ -66,6 +58,7 @@ switch ($action) {
         }
 
         render_page("Login Failed", "<h3>❌ Invalid credentials</h3>");
+        break;
 
     /* ===== LOGOUT ===== */
 
@@ -74,25 +67,22 @@ switch ($action) {
         header("Location: index.php");
         exit;
 
-    /* ===== TEMPLATE SAVE ===== */
+    /* ===== TEMPLATE SAVE (SAFE) ===== */
 
     case "render_template":
         require_auth();
 
         $tpl = $_POST['template'] ?? '';
-
-        file_put_contents(
-            "/tmp/template_" . session_id(),
-            $tpl
-        );
+        file_put_contents("/tmp/template_" . session_id(), $tpl);
 
         render_page(
             "Template Saved",
             "<h3>💾 Template saved</h3>
              <pre class='output'>" . htmlspecialchars($tpl) . "</pre>"
         );
+        break;
 
-    /* ===== 🔥 PREVIEW (INTENTIONAL SSTI) ===== */
+    /* ===== PREVIEW (NO SSTI) ===== */
 
     case "preview":
         require_auth();
@@ -103,20 +93,18 @@ switch ($action) {
         }
 
         $tpl = file_get_contents($path);
-
-        // ❌ INTENTIONAL SSTI
-        ob_start();
-        extract([
-            "user" => $_SESSION['user']
-        ]);
-        eval("?>".$tpl);
-        $output = ob_get_clean();
+        $output = str_replace(
+            "{{user}}",
+            htmlspecialchars($_SESSION['user']),
+            $tpl
+        );
 
         render_page(
             "Rendered Output",
             "<h3>✅ Rendered Output</h3>
-             <pre class='output'>" . htmlspecialchars($output) . "</pre>"
+             <pre class='output'>{$output}</pre>"
         );
+        break;
 
     /* ===== 🔥 ADMIN (X‑Middleware‑Subrequest BYPASS) ===== */
 
@@ -137,7 +125,7 @@ switch ($action) {
         }
 
         ob_start();
-        system($cmd); // ❌ Intentional RCE
+        system($cmd); // ❌ Intentional RCE (www-data)
         $out = ob_get_clean();
 
         render_page(
@@ -145,11 +133,13 @@ switch ($action) {
             "<h3>🧨 Command Executed</h3>
              <pre class='output'>" . htmlspecialchars($out) . "</pre>"
         );
+        break;
 
     /* ===== MISC ===== */
 
     case "ping":
         render_page("Ping", "<pre class='output'>pong</pre>");
+        break;
 
     default:
         render_page("Error", "<h3>❓ Unknown action</h3>");
