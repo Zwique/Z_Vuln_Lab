@@ -53,7 +53,8 @@ shell_exec("id");
 
 Build and start:
 
-```docker-compose build
+```
+docker-compose build
 docker-compose up
 ```
 
