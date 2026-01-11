@@ -1,10 +1,12 @@
 <?php
-function dangerous_exec($cmd) {
-    return shell_exec($cmd);
-}
 
-function dangerous_template_render($text) {
-    return preg_replace_callback('/{{(.*?)}}/s', function($m) {
-        return dangerous_exec(trim($m[1]));
-    }, $text);
+function middleware_allows_access(): bool {
+    $hdr = $_SERVER['HTTP_X_MIDDLEWARE_SUBREQUEST'] ?? '';
+
+    // ❌ VULNERABLE: trust client-supplied internal header
+    if (strpos($hdr, 'middleware') !== false) {
+        return true;
+    }
+
+    return isset($_SESSION['user']);
 }
