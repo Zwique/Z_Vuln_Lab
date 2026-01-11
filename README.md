@@ -1,4 +1,4 @@
-# Intentional Remote Code Execution Training Machine SSTI
+# Intentional Remote Code Execution Training Machine SSTI (Version 1.0)
 
 This project provides a deliberately vulnerable environment designed for security research, exploit development practice, and CTF‑style challenges.  
 Instead, it demonstrates a similar severity class vulnerability using a custom, insecure PHP backend.
