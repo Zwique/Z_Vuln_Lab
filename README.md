@@ -1,63 +1,36 @@
-# 🧪 Intentionally Vulnerable Web Lab — Version 2.0
+# Intentional Remote Code Execution Training Machine — Middleware Bypass (v2)
 
-A deliberately vulnerable PHP web application designed for beginners to learn modern web exploitation techniques in a safe, local environment.
-
-<<<<<<< Updated upstream
-It is ideal for:
-- ✅ Web security beginners  
-- ✅ CTF-style practice   
-- ✅ Learning how vulnerabilities chain together in real applications  
-=======
-This version focuses on logic flaws and trust boundary violations inspired by real-world vulnerabilities and Hack The Box challenges.
->>>>>>> Stashed changes
-
-> ⚠️ WARNING  
-> This application is intentionally insecure.  
-<<<<<<< Updated upstream
-> **Never deploy it on the internet or in a production environment.** 
-=======
-> Never deploy it to the internet or production systems.
->>>>>>> Stashed changes
+This project provides a deliberately vulnerable environment designed for security research, exploit development practice, and CTF‑style challenges.  
+Instead of classic injection flaws, this version demonstrates a **logic‑based authentication bypass** caused by trusting client‑controlled middleware headers.
 
 ---
 
-## 🎯 Learning Objectives
+## Vulnerability Summary
 
-This lab demonstrates:
+The main vulnerability is a **Remote Code Execution (RCE)** chain caused by an **authentication bypass via an insecure middleware trust model**.
 
-- How logic flaws can be more dangerous than injections
-- Why trusting client-controlled headers is dangerous
-- How authentication bypass leads to full system compromise
-- Web → OS → root privilege escalation chains
+### Vulnerable Functions
 
----
+```php
+middleware_allows_access()
+system()
+shell_exec()
+```
 
-## 🛠️ Tech Stack
-
-- PHP 7.4 (Apache)
-- MariaDB
-- Docker & Docker Compose
-- Linux privilege escalation (sudo misconfiguration)
-
----
-
-## 🧩 Vulnerabilities Overview (v2.0)
-
-### 🔥 X-Middleware-Subrequest Authentication Bypass
-
-The application protects an admin endpoint using a middleware-style authorization check.  
-However, it incorrectly trusts a client-supplied HTTP header:
-
+The application trusts a client‑supplied internal header:
+```
 X-Middleware-Subrequest
+```
 
+Any request containing the substring **middleware** is treated as authorized.
 
-### Vulnerable Code
+### Vulnerable Logic
 
 ```php
 function middleware_allows_access(): bool {
     $hdr = $_SERVER['HTTP_X_MIDDLEWARE_SUBREQUEST'] ?? '';
 
-    // ❌ Vulnerable: trust client-controlled internal header
+    // ❌ Vulnerable: trusts client-controlled internal header
     if (strpos($hdr, 'middleware') !== false) {
         return true;
     }
@@ -66,70 +39,52 @@ function middleware_allows_access(): bool {
 }
 ```
 
-Why this is vulnerable
+An attacker can supply:
 
-HTTP headers are fully attacker-controlled
-
-The application trusts an internal-only header
-
-Substring matching is used instead of strict validation
-
-Any value containing middleware bypasses authentication
-
-Example Bypass Header
-```php
+```
 X-Middleware-Subrequest: middleware:middleware:middleware
 ```
 
-🧨 Impact
+This results in authentication bypass, allowing command execution:
+```shell_exec("id");```
 
-1. An attacker can:
 
-2. Bypass authentication
+# Features of This Lab
 
-3. Access an admin-only endpoint
+- PHP 7.4 backend with intentionally insecure code
 
-4. Execute system commands as www-data
+- Middleware-style authorization check with trust boundary violation
 
-5. Abuse a sudo misconfiguration
+- Authentication bypass via client‑controlled headers
 
-6. Escalate privileges to root
+- Admin‑only command execution endpoint
 
-7. Read /root/flag.txt
+- Sudo misconfiguration for privilege escalation
 
-## 🚀 Running the Lab (Docker)
+- Supports:
 
-This lab is fully Dockerized and runs locally.
+    - Authentication Bypass
 
-### Build and Start
-
-From the project root, run:
-
-```bash
-docker-compose build
-docker-compose up
-```
-The application will be available at:
-```
-http://localhost:8080
-```
-To Stop the lab: 
-
-```
-docker-compose down
-```
-
-🧨 Exploit Script
-
-A ready‑to‑use exploit script is provided for learning purposes:
-```
-/exploit/exp.py
-```
-Example usage:
-```
-python3 exploit/exp.py "id"
-python3 exploit/exp.py "ls -la"
-```
+    - Remote Code Execution (RCE)
 
 > [!NOTE]
-> After gaining `www-data`, there is a privilege escalation vulnerability. Escalate to the `root` user and retrieve `flag.txt` from the /root directory.
+> PHP 7.4 backend with intentionally insecure code
+
+## Access at:
+
+http://localhost:8080/
+
+🧪 Exploitation Examples
+RCE (Template Injection)
+```POST /api/render.php
+page={{ id }}
+```
+LFI (Read System Files)
+```
+GET /api/render.php?page=../../../../etc/passwd
+```
+### Using the Provided PoC Script
+```
+python3 exp.py lfi /etc/passwd
+python3 exp.py rce "id"
+```
