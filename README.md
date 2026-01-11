@@ -45,7 +45,7 @@ shell_exec("id");
 - Simple HTML/JS frontend
 
 - Dockerized for easy deployment
-- 
+
 > [!NOTE]
 > PHP 7.4 backend with intentionally insecure code
 
