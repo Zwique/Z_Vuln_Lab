@@ -70,6 +70,15 @@ This results in authentication bypass, allowing command execution:
 > [!NOTE]
 > PHP 7.4 backend with intentionally insecure code
 
+🚀 Running the Machine
+
+Build and start:
+
+```
+docker-compose build
+docker-compose up
+```
+
 ## Access at:
 
 http://localhost:8080/
@@ -108,7 +117,17 @@ Expected output:
 
 ```
 
+# Troubleshooting
+
+```bash
+# Force rebuild if SUID binary not found
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
 ### Using the Provided PoC Script
 ```
 python3 exp.py rce "id"
 ```
+
