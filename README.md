@@ -131,3 +131,25 @@ docker-compose up -d
 python3 exp.py rce "id"
 ```
 
+
+## 🔓 Privilege Escalation
+
+After obtaining a shell as `www-data`, a local privilege escalation vulnerability can be abused.
+
+The system contains a **root-owned SUID binary**:
+
+```/usr/local/bin/checksys```
+
+This binary executes system commands using `system()` without sanitizing the `PATH` environment variable.
+
+By manipulating `PATH`, an attacker can hijack command execution and spawn a **root shell**.
+
+### Outcome
+
+- Privilege escalation from `www-data` → `root`
+- Read the final flag:
+
+```/root/flag.txt```
+
+> [!NOTE]
+> This misconfiguration is intentional and included for educational purposes only.
