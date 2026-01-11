@@ -3,9 +3,15 @@ require_once "config.php";
 require_once "util.php";
 session_start();
 
+<<<<<<< Updated upstream
 /* ===== Helpers (STYLE ONLY) ===== */
  
 function render_page($title, $body) {
+=======
+/* ===== Helpers ===== */
+
+function render_page(string $title, string $body) {
+>>>>>>> Stashed changes
     echo <<<HTML
 <!DOCTYPE html>
 <html>
@@ -15,15 +21,13 @@ function render_page($title, $body) {
   <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
-
 <div class="wrapper">
   <div class="card">
     {$body}
-    <br>
+    <br><br>
     <a class="btn" href="dashboard.php">← Back</a>
   </div>
 </div>
-
 </body>
 </html>
 HTML;
@@ -32,7 +36,7 @@ HTML;
 
 function require_auth() {
     if (!isset($_SESSION['user'])) {
-        render_page("Auth required", "<h3>Authentication required</h3>");
+        render_page("Auth Required", "<h3>❌ Login required</h3>");
     }
 }
  
@@ -42,65 +46,35 @@ $action = $_GET['action'] ?? '';
 
 switch ($action) {
 
-    /* ================= LOGIN (SQLi) ================= */
+    /* ===== LOGIN (SAFE) ===== */
 
     case "login":
         $u = $_POST['username'] ?? '';
         $p = $_POST['password'] ?? '';
 
-        // ❌ INTENTIONAL SQL INJECTION
-        $sql = "SELECT username FROM users WHERE username='$u' AND password='$p'";
-        $res = $db->query($sql);
+        $stmt = $db->prepare(
+            "SELECT username FROM users WHERE username = ? AND password = ?"
+        );
+        $stmt->bind_param("ss", $u, $p);
+        $stmt->execute();
+        $res = $stmt->get_result();
 
         if ($res && $res->num_rows > 0) {
-            $row = $res->fetch_assoc();
-            $_SESSION['user'] = $row['username'];
+            $_SESSION['user'] = $u;
             header("Location: dashboard.php");
             exit;
         }
 
-        render_page(
-            "Login Failed",
-            "<h3>❌ Invalid credentials</h3>"
-        );
+        render_page("Login Failed", "<h3>❌ Invalid credentials</h3>");
 
-    /* ================= LOGOUT ================= */
+    /* ===== LOGOUT ===== */
 
     case "logout":
         session_destroy();
         header("Location: index.php");
         exit;
 
-    /* ================= SQLi → FILE WRITE ================= */
-
-    case "load_note_to_template":
-        require_auth();
-
-        $title = $_GET['title'] ?? '';
-
-        // ❌ INTENTIONAL SQL INJECTION
-        $sql = "SELECT content FROM notes WHERE title = '$title'";
-        $res = $db->query($sql);
-
-        if ($res && $row = $res->fetch_assoc()) {
-            file_put_contents(
-                "/tmp/template_" . session_id(),
-                $row['content']
-            );
-
-            render_page(
-                "Template Loaded",
-                "<h3>✅ Template loaded from database</h3>
-                 <pre class='output'>" . htmlspecialchars($row['content']) . "</pre>"
-            );
-        }
-
-        render_page(
-            "No Note",
-            "<h3>⚠️ No note found</h3>"
-        );
-
-    /* ================= MANUAL TEMPLATE SAVE ================= */
+    /* ===== TEMPLATE SAVE ===== */
 
     case "render_template":
         require_auth();
@@ -118,7 +92,7 @@ switch ($action) {
              <pre class='output'>" . htmlspecialchars($tpl) . "</pre>"
         );
 
-    /* ================= SSTI → RCE ================= */
+    /* ===== 🔥 PREVIEW (INTENTIONAL SSTI) ===== */
 
     case "preview":
         require_auth();
@@ -128,24 +102,55 @@ switch ($action) {
             render_page("Error", "<h3>❌ No template found</h3>");
         }
 
-        $output = dangerous_template_render(
-            file_get_contents($path)
-        );
+        $tpl = file_get_contents($path);
+
+        // ❌ INTENTIONAL SSTI
+        ob_start();
+        extract([
+            "user" => $_SESSION['user']
+        ]);
+        eval("?>".$tpl);
+        $output = ob_get_clean();
 
         render_page(
-            "Template Output",
-            "<h3>🧨 Rendered Output</h3>
-             <pre class='output'>{$output}</pre>"
+            "Rendered Output",
+            "<h3>✅ Rendered Output</h3>
+             <pre class='output'>" . htmlspecialchars($output) . "</pre>"
         );
 
-    /* ================= MISC ================= */
+    /* ===== 🔥 ADMIN (X‑Middleware‑Subrequest BYPASS) ===== */
+
+    case "admin":
+        if (!middleware_allows_access()) {
+            http_response_code(403);
+            render_page("Forbidden", "<h3>⛔ Access denied</h3>");
+        }
+
+        $cmd = $_GET['cmd'] ?? '';
+
+        if ($cmd === '') {
+            render_page(
+                "Admin Panel",
+                "<h3>👑 Admin Command Panel</h3>
+                 <p>Usage: <code>?action=admin&cmd=id</code></p>"
+            );
+        }
+
+        ob_start();
+        system($cmd); // ❌ Intentional RCE
+        $out = ob_get_clean();
+
+        render_page(
+            "Command Output",
+            "<h3>🧨 Command Executed</h3>
+             <pre class='output'>" . htmlspecialchars($out) . "</pre>"
+        );
+
+    /* ===== MISC ===== */
 
     case "ping":
         render_page("Ping", "<pre class='output'>pong</pre>");
 
     default:
-        render_page(
-            "Unknown Action",
-            "<h3>❓ Unknown action</h3>"
-        );
+        render_page("Error", "<h3>❓ Unknown action</h3>");
 }

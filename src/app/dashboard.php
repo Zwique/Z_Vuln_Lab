@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (!isset($_SESSION['user'])) {
+    header("Location: index.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,7 +17,7 @@
 <div class="header">
   <div>🧪 SSTI Lab</div>
   <div>
-    Hello <strong><?= $_SESSION['user'] ?></strong> ·
+    Hello <strong><?= htmlspecialchars($_SESSION['user']) ?></strong> ·
     <a href="api.php?action=logout">Logout</a>
   </div>
 </div>
@@ -17,11 +25,7 @@
 <div class="wrapper">
 
   <div class="card">
-    <h3>
-      Save Template
-      <span class="danger">UNSAFE</span>
-    </h3>
-
+    <h3>Save Template <span class="danger">UNSAFE</span></h3>
     <p class="subtext">
       This template is rendered server‑side without sanitization.
     </p>
@@ -30,8 +34,8 @@
       <textarea
         name="template"
         rows="6"
-        placeholder="Hello User !!!"
-        ></textarea>
+        placeholder="Hello {{whoami}}"
+      ></textarea>
 
       <br><br>
       <button>Save Template</button>

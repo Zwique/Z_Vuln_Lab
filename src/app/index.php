@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>SSTI Vuln Lab</title>
+  <title>SSTI Vuln Lab Version 2.0</title>
   <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
@@ -9,7 +9,7 @@
 <div class="wrapper">
   <div class="card">
     <h1>🧪 SSTI Vuln Lab</h1>
-    <p class="subtext">Intentionally vulnerable login portal</p>
+    <p class="subtext">Intentionally vulnerable PHP lab</p>
 
     <form method="POST" action="api.php?action=login">
       <input name="username" placeholder="username">
@@ -19,13 +19,7 @@
       <button>Login</button>
     </form>
 
-    <div class="subtext" style="margin-top:1rem">
-      ⚠️ Do not deploy on the internet
-    </div>
-  </div>
-
-  <div class="footer">
-    Beginner‑friendly exploitation lab
+    <p class="subtext">⚠️ Never deploy on the internet</p>
   </div>
 </div>
 
