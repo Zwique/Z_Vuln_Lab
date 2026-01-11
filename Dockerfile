@@ -1,26 +1,30 @@
 FROM php:7.4-apache
 
-# Install PHP extensions
-RUN docker-php-ext-install mysqli
+# Enable Apache rewrite & install PHP extensions
+RUN a2enmod rewrite \
+    && docker-php-ext-install mysqli
 
-# Enable Apache rewrite
-RUN a2enmod rewrite
+# Tools needed for privesc
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install sudo (needed for privesc)
-RUN apt update && apt install -y sudo
+# Copy and build vulnerable SUID binary
+COPY vuln.c /tmp/checksys.c
+RUN gcc /tmp/checksys.c -o /usr/local/bin/checksys \
+    && chown root:root /usr/local/bin/checksys \
+    && chmod 4755 /usr/local/bin/checksys \
+    && rm /tmp/checksys.c
 
-# 🚨 Privilege Escalation Misconfiguration
-# Allow www-data to run PHP as root with NO password
-RUN echo "www-data ALL=(root) NOPASSWD: /usr/bin/php" > /etc/sudoers.d/www-data \
-    && chmod 440 /etc/sudoers.d/www-data
-
-# 🚩 Create root flag EVERY build
-RUN echo 'uacCTF{Y0u_D1d_1T_Congratsss}' > /root/flag.txt \
+# 🚩 Root flag
+RUN echo 'uacCTF{SUID_PATH_HIJACK_PWNED}' > /root/flag.txt \
     && chmod 600 /root/flag.txt
 
-# Copy application
-COPY src/app /var/www/html/
-COPY src/static /var/www/html/static/
+# Copy web app files (excluding static to handle separately)
+COPY src/app/*.php src/app/util.php src/app/api.php src/app/config.php /var/www/html/
+COPY src/app/api/ /var/www/html/api/
+COPY src/app/static/ /var/www/html/static/
 
-# Uploads writable
-RUN chown -R www-data:www-data /var/www/html/uploads
+# Writable uploads directory
+RUN mkdir -p /var/www/html/uploads \
+    && chown -R www-data:www-data /var/www/html/uploads
