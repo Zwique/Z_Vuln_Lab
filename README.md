@@ -78,3 +78,13 @@ python3 exp.py rce "id"
 ```
 ### PoC
 <img width="1048" height="541" alt="example" src="https://github.com/user-attachments/assets/4f245f97-70dd-45e8-b0c6-c7b81b2db2e7" />
+
+---
+
+## Privilege Escalation
+
+After achieving Remote Code Execution as the **www-data** user, privilege escalation to **root** is possible due to an intentional sudo misconfiguration inside the container.
+
+### Misconfiguration
+
+The Docker image grants the web server user passwordless sudo access to PHP. So, try reading the flag in `/root/flag.txt`
