@@ -17,7 +17,7 @@ system()
 shell_exec()
 ```
 
-The application trusts a client‑supplied internal header:
+The application trusts a client‑supplied internal header: 
 ```
 X-Middleware-Subrequest
 ```
