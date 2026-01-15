@@ -1,30 +1,70 @@
-FROM php:7.4-apache
+FROM ubuntu:22.04
 
-# Enable Apache rewrite & install PHP extensions
-RUN a2enmod rewrite \
-    && docker-php-ext-install mysqli
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Tools needed for privesc
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt update && \
+    apt install -y \
+    openssh-server \
+    net-tools \
+    git \
+    curl \
+    wget \
+    sudo \
+    python3 \
+    supervisor \
+    sqlite3 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy and build vulnerable SUID binary
-COPY vuln.c /tmp/checksys.c
-RUN gcc /tmp/checksys.c -o /usr/local/bin/checksys \
-    && chown root:root /usr/local/bin/checksys \
-    && chmod 4755 /usr/local/bin/checksys \
-    && rm /tmp/checksys.c
+RUN useradd -m player && \
+    echo "player:player123" | chpasswd && \
+    useradd -m git && \
+    echo "git:git123" | chpasswd
 
-# 🚩 Root flag
-RUN echo 'uacCTF{SUID_PATH_HIJACK_PWNED}' > /root/flag.txt \
-    && chmod 600 /root/flag.txt
+RUN mkdir /var/run/sshd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config && \
+    sed -i 's/#AllowTcpForwarding yes/AllowTcpForwarding yes/' /etc/ssh/sshd_config
 
-# Copy web app files (excluding static to handle separately)
-COPY src/app/*.php src/app/util.php src/app/api.php src/app/config.php /var/www/html/
-COPY src/app/api/ /var/www/html/api/
-COPY src/app/static/ /var/www/html/static/
+EXPOSE 22
 
-# Writable uploads directory
-RUN mkdir -p /var/www/html/uploads \
-    && chown -R www-data:www-data /var/www/html/uploads
+RUN echo "player ALL=(root) NOPASSWD: /usr/bin/git" >> /etc/sudoers
+
+RUN wget -O /usr/local/bin/gitea https://dl.gitea.io/gitea/1.21.0/gitea-1.21.0-linux-amd64 && \
+    chmod +x /usr/local/bin/gitea
+
+RUN mkdir -p /var/lib/gitea/{data,log,custom} && \
+    chown -R git:git /var/lib/gitea && \
+    chmod -R 750 /var/lib/gitea
+
+RUN mkdir /etc/gitea
+COPY app.ini /etc/gitea/app.ini
+RUN chown -R git:git /etc/gitea && \
+    chmod 640 /etc/gitea/app.ini
+
+RUN mkdir -p /var/lib/gitea/data/gitea-repositories/git/vuln.git && \
+    cd /var/lib/gitea/data/gitea-repositories/git/vuln.git && \
+    git init --bare
+
+RUN mkdir /tmp/vuln && cd /tmp/vuln && \
+    git init && \
+    echo "<?php system(\$_GET['cmd']); ?>" > rce.php && \
+    git add rce.php && \
+    git commit -m \"Initial vulnerable commit\" && \
+    git remote add origin /var/lib/gitea/data/gitea-repositories/git/vuln.git && \
+    git push origin master
+
+RUN sqlite3 /var/lib/gitea/data/gitea.db <<EOF
+CREATE TABLE repository (
+  id INTEGER PRIMARY KEY,
+  owner_id INTEGER,
+  lower_name TEXT,
+  name TEXT,
+  is_private INTEGER
+);
+INSERT INTO repository VALUES (1,1,'vuln','vuln',0);
+EOF
+
+RUN chown -R git:git /var/lib/gitea
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+CMD ["/usr/bin/supervisord"]
