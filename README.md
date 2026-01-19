@@ -57,4 +57,4 @@ player@4ab7cc9b6fb8:~$
 
 WalkThrough:
 
-Check out the <a>WalkThrough.md</a> if you're stuck.
+Check out the <a href="WalkThrough.md">WalkThrough.md</a> if you're stuck.
