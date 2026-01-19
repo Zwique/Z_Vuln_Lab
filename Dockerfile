@@ -16,22 +16,22 @@ RUN apt update && apt install -y \
     net-tools \
     && rm -rf /var/lib/apt/lists/*
 
-
+# Install Flask
 RUN pip3 install flask
 
+# ---- Users ----
 RUN useradd -m -d /home/player -s /bin/bash player && \
     echo "player:player" | chpasswd
 
 RUN useradd -m -d /home/git -s /bin/bash git
 
-
+# ---- SSH ----
 RUN mkdir /var/run/sshd && \
     echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 
 # ---- CRITICAL VULNERABILITY: Sudoers configuration ----
-
-RUN echo "git ALL=(root) NOPASSWD: /bin/tar" > /etc/sudoers.d/backup && \
-    chmod 0440 /etc/sudoers.d/backup
+# Actually, we'll run Flask as root directly (even worse!)
+# This simulates a common misconfiguration where services run with excessive privileges
 
 # ---- Gitea binary (ARM64) ----
 RUN curl -L https://dl.gitea.com/gitea/1.21.0/gitea-1.21.0-linux-arm64 \
@@ -50,29 +50,34 @@ RUN mkdir -p \
     mkdir -p /data/git/.ssh && \
     chown -R git:git /data/git/.ssh
 
-
+# ---- Config ----
 COPY app.ini /etc/gitea/app.ini
 RUN chown git:git /etc/gitea/app.ini
 
-
+# ---- Backend app ----
 COPY backend /opt/backend
 RUN chown -R git:git /opt/backend
 
-
+# ---- Init script ----
 COPY init.sh /usr/local/bin/init.sh
 RUN chmod +x /usr/local/bin/init.sh
 
-
+# ---- Supervisor ----
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# ---- Flag ----
+COPY root.txt /root/root.txt
+RUN chmod 600 /root/root.txt
 
-COPY flag.txt /root/flag.txt
-RUN chmod 600 /root/flag.txt
 
+COPY user.txt /home/player/user.txt
+RUN chmod 644 /home/player/user.txt
 
+# ---- Hint file for player ----
 RUN echo "Hint: Check running services and internal network ports" > /home/player/README.txt && \
     chown player:player /home/player/README.txt
 
-EXPOSE 22 3000
+EXPOSE 22
 
 CMD ["/usr/bin/supervisord"]
+
