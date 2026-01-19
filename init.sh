@@ -19,7 +19,6 @@ sudo -u git /usr/local/bin/gitea admin user create \
 echo "[+] Preparing backend code..."
 cd /opt/backend
 
-# Initialize git repo
 rm -rf .git
 sudo -u git git init
 sudo -u git git config user.email "dev@internal.local"
@@ -44,7 +43,7 @@ curl -X POST "http://127.0.0.1:3000/api/v1/user/repos" \
 sleep 2
 
 echo "[+] Pushing code to repository..."
-# Push to the repository
+
 sudo -u git git remote add origin http://dev:dev123@127.0.0.1:3000/dev/backend.git
 sudo -u git git push -u origin main --force
 
