@@ -54,7 +54,7 @@ player@4ab7cc9b6fb8:~$
 > If you see something `WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!`, use `ssh-keygen -R "[localhost]:2222"` command to remove old host keys.
 
 > [!IMPORTANT]
-> This lab uses binaries compiled for ARM64. If you are on an x86_64 Windows/Linux machine, please use the compatible x86 version here.
+> This lab uses binaries compiled for both ARM64 and x86_64.
 
 WalkThrough:
 
