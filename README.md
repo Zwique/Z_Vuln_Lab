@@ -23,12 +23,13 @@ docker build -t privesc .
 
 # Start the container
 docker run -d -p 2222:22 --name lab privesc
-
+```
 
 2. Access the System
 Log in as the user player using the password player.
 
 `player:player`
+
 
 ```bash
 ➜  SSTI_Vuln git:(privesc-only) ✗ ssh player@localhost -p 2222
