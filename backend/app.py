@@ -45,12 +45,24 @@ def backup():
     path = data.get('path', '/var/log')
     destination = data.get('destination', '/tmp/backup')
     
-    # VULNERABILITY: Command injection via unsanitized input
-    # The application runs with elevated privileges via sudo
+    # Basic input validation (appears secure but isn't)
+    if '..' in path or '..' in destination:
+        return jsonify({"error": "Path traversal detected"}), 400
+    
+    if ';' in path or '&' in destination:
+        return jsonify({"error": "Invalid characters detected"}), 400
+    
+    # VULNERABILITY: Command injection still possible despite "validation"
+    # Multiple attack vectors exist:
+    # 1. Shell metacharacters in destination after .tar.gz
+    # 2. Newline injection
+    # 3. Command substitution $() or ``
+    # 4. Pipe operator |
+    # 5. The app runs as ROOT (major misconfiguration!)
+    
     command = f"tar -czf {destination}.tar.gz {path}"
     
     try:
-        # Execute command as root (configured in sudoers)
         result = subprocess.run(
             command,
             shell=True,  # DANGEROUS: shell=True with user input
@@ -62,7 +74,6 @@ def backup():
         return jsonify({
             "success": True,
             "message": f"Backup created: {destination}.tar.gz",
-            "command": command,  # Leaking the command for debugging
             "output": result.stdout
         })
     

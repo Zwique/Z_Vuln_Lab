@@ -54,3 +54,7 @@ player@4ab7cc9b6fb8:~$
 
 > [!IMPORTANT]
 > This lab uses binaries compiled for ARM64. If you are on an x86_64 Windows/Linux machine, please use the compatible x86 version here.
+
+WalkThrough:
+
+Check out the <a href="WalkThrough.md">WalkThrough.md</a> if you're stuck.

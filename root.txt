@@ -1,0 +1,1 @@
+uacCTF{PrivEscalation_Vuln_0penPORTS_R00TFLAG}
