@@ -16,18 +16,22 @@ RUN apt update && apt install -y \
     net-tools \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Flask
+
 RUN pip3 install flask
 
-# ---- Users ----
 RUN useradd -m -d /home/player -s /bin/bash player && \
     echo "player:player" | chpasswd
 
 RUN useradd -m -d /home/git -s /bin/bash git
 
-# ---- SSH ----
+
 RUN mkdir /var/run/sshd && \
     echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+
+# ---- CRITICAL VULNERABILITY: Sudoers configuration ----
+
+RUN echo "git ALL=(root) NOPASSWD: /bin/tar" > /etc/sudoers.d/backup && \
+    chmod 0440 /etc/sudoers.d/backup
 
 # ---- Gitea binary (ARM64) ----
 RUN curl -L https://dl.gitea.com/gitea/1.21.0/gitea-1.21.0-linux-arm64 \
@@ -42,27 +46,33 @@ RUN mkdir -p \
     /var/lib/gitea/log \
     /var/lib/gitea/repositories \
     /etc/gitea && \
-    chown -R git:git /var/lib/gitea /etc/gitea
+    chown -R git:git /var/lib/gitea /etc/gitea && \
+    mkdir -p /data/git/.ssh && \
+    chown -R git:git /data/git/.ssh
 
-# ---- Config ----
+
 COPY app.ini /etc/gitea/app.ini
 RUN chown git:git /etc/gitea/app.ini
 
-# ---- Backend app ----
+
 COPY backend /opt/backend
 RUN chown -R git:git /opt/backend
 
-# ---- Init script ----
+
 COPY init.sh /usr/local/bin/init.sh
 RUN chmod +x /usr/local/bin/init.sh
 
-# ---- Supervisor ----
+
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# ---- Flag ----
+
 COPY flag.txt /root/flag.txt
 RUN chmod 600 /root/flag.txt
 
-EXPOSE 22
+
+RUN echo "Hint: Check running services and internal network ports" > /home/player/README.txt && \
+    chown player:player /home/player/README.txt
+
+EXPOSE 22 3000
 
 CMD ["/usr/bin/supervisord"]

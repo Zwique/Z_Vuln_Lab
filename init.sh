@@ -9,7 +9,6 @@ until curl -s http://127.0.0.1:3000 > /dev/null; do
 done
 
 echo "[+] Creating admin user..."
-
 sudo -u git /usr/local/bin/gitea admin user create \
   --username dev \
   --password dev123 \
@@ -17,31 +16,36 @@ sudo -u git /usr/local/bin/gitea admin user create \
   --admin \
   --config /etc/gitea/app.ini || true
 
-echo "[+] Creating backend repo..."
-
-sudo -u git /usr/local/bin/gitea admin repo create \
-  --owner dev \
-  --name backend \
-  --private=false \
-  --config /etc/gitea/app.ini || true
-
-echo "[+] Seeding vulnerable backend code..."
-
+echo "[+] Preparing backend code..."
 cd /opt/backend
 
-if [ ! -d ".git" ]; then
-  git init
-  git config user.email "dev@internal.local"
-  git config user.name "dev"
-  git add .
-  git commit -m "Initial vulnerable backend service"
-fi
+# Initialize git repo
+rm -rf .git
+sudo -u git git init
+sudo -u git git config user.email "dev@internal.local"
+sudo -u git git config user.name "dev"
+sudo -u git git add .
+sudo -u git git commit -m "Initial vulnerable backend service"
+sudo -u git git branch -M main
 
-git branch -M main
+echo "[+] Creating repository via API..."
+# Create repository using Gitea API
+curl -X POST "http://127.0.0.1:3000/api/v1/user/repos" \
+  -u "dev:dev123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "backend",
+    "description": "Internal Backend Service",
+    "private": false,
+    "auto_init": false,
+    "default_branch": "main"
+  }' || true
 
-git remote remove origin 2>/dev/null || true
-git remote add origin http://dev:dev123@127.0.0.1:3000/dev/backend.git
+sleep 2
 
-git push -u origin main --force
+echo "[+] Pushing code to repository..."
+# Push to the repository
+sudo -u git git remote add origin http://dev:dev123@127.0.0.1:3000/dev/backend.git
+sudo -u git git push -u origin main --force
 
 echo "[+] Gitea seeding complete."
