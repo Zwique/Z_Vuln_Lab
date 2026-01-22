@@ -10,6 +10,7 @@ Find and read the following flags:
 1. `/home/player/user.txt`
 2. `/root/root.txt`
 
+
 ---
 
 ## Setup Instructions
@@ -49,6 +50,7 @@ player@4ab7cc9b6fb8:~$ whoami
 player
 player@4ab7cc9b6fb8:~$ 
 ```
+
 
 > [!WARNING]
 > If you see something `WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!`, use `ssh-keygen -R "[localhost]:2222"` command to remove old host keys.
