@@ -1,77 +1,37 @@
-# Z-Vuln-Lab v5.0 — JWT & OAuth Auth Bypass
+# Z-Vuln-Lab v5.0 — JWT Authentication Bypass
 
-This lab simulates modern authentication vulnerabilities involving JWT misuse and OAuth identity trust flaws.
+This lab demonstrates a common JWT implementation flaw where token verification is improperly handled.
 
+## Objective
+Obtain the admin flag by forging a JWT token.
 
-## Scenario
-You have obtained a low-privilege shell on the system. Your goal is to identify misconfigurations or vulnerabilities to escalate your privileges to `root`.
+## Setup
+```bash
+docker build -t jwt-auth-lab .
+docker run -d -p 9000:9000 --name jwt-auth jwt-auth-lab
 
-### Objectives
-Find and read the following flags:
-1. `/home/player/user.txt`
-2. `/root/root.txt`
+Visit: http://localhost:9000
+
+Credentials
+
+player:player
 
 
 ---
 
-## Setup Instructions
+## 📄 WalkThrough.md
 
-### 1. Build & Run
-Execute the following commands to build the image and start the lab:
-=======
-## Objectives
-Find and read:
-- /home/player/user.txt
-- /root/root.txt
->>>>>>> jwt-oauth
+```md
+# Walkthrough — JWT Auth Bypass
 
-## Setup
-```bash
+## Step 1: Login as player
+POST /login → get JWT.
 
-# Build the Docker image
-docker build -t privesc .
+## Step 2: Decode JWT
+Observe role=user.
 
-# Start the container
-docker run -d -p 2222:22 --name lab privesc
-```
+## Step 3: Forge JWT
+Change role to admin and use alg:none or exploit missing verification.
 
-2. Access the System
-Log in as the user player using the password player.
-
-`player:player`
-
-
-```bash
-➜  SSTI_Vuln git:(privesc-only) ✗ ssh player@localhost -p 2222
-player@localhost's password: 
-Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.12.54-linuxkit aarch64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
-
-This system has been minimized by removing packages and content that are
-not required on a system that users do not log into.
-
-To restore this content, you can run the 'unminimize' command.
-Last login: Mon Jan 19 21:15:20 2026 from 192.168.65.1
-player@4ab7cc9b6fb8:~$ whoami
-player
-player@4ab7cc9b6fb8:~$ 
-```
-
-
-> [!WARNING]
-> If you see something `WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!`, use `ssh-keygen -R "[localhost]:2222"` command to remove old host keys.
-
-> [!IMPORTANT]
-> This lab uses binaries compiled for both ARM64 and x86_64.
-
-WalkThrough:
-
-Check out the <a href="WalkThrough.md">WalkThrough.md</a> if you're stuck.
-=======
-docker build -t jwt-oauth-lab .
-docker run -d -p 2222:22 -p 5000:5000 --name jwtlab jwt-oauth-lab
-ssh player@localhost -p 2222
-password: player
+## Step 4: Access /admin
+Use forged token to retrieve the flag.

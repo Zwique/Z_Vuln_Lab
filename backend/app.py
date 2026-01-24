@@ -1,68 +1,59 @@
-from flask import Flask, request, jsonify
-import os
-from auth import create_token, verify_token
-from oauth import process_oauth_login
+from flask import Flask, request, render_template, redirect, url_for, make_response
+from auth import create_token, decode_token
 
 app = Flask(__name__)
 
 USERS = {
     "player": {"password": "player", "role": "user"},
-    "admin": {"password": "admin123", "role": "admin"},
+    "admin": {"password": "supersecretpasswordby_Zwique", "role": "admin"}
 }
 
-@app.route("/login", methods=["POST"])
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    data = request.json
-    user = USERS.get(data.get("username"))
+    if request.method == "POST":
+        data = request.form
+        user = USERS.get(data["username"])
+        if user and user["password"] == data["password"]:
+            token = create_token(data["username"], user["role"])
+            resp = make_response(redirect(url_for("dashboard")))
+            resp.set_cookie("token", token)
+            return resp
+        return "Invalid credentials", 403
+    return render_template("login.html")
 
-    if user and user["password"] == data.get("password"):
-        token = create_token(data["username"], user["role"])
-        return jsonify({"token": token})
+@app.route("/dashboard")
+def dashboard():
+    token = request.cookies.get("token")
+    if not token:
+        return redirect(url_for("login"))
 
-    return jsonify({"error": "Invalid credentials"}), 401
-
-
-@app.route("/oauth-login", methods=["POST"])
-def oauth_login():
-    oauth_data = request.json  # attacker-controlled
-    user = process_oauth_login(oauth_data)
-    token = create_token(user["user"], user["role"])
-    return jsonify({"token": token})
-
-
-@app.route("/profile")
-def profile():
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    data = verify_token(token)
-
-    if not data:
-        return jsonify({"error": "Invalid token"}), 403
-
-    return jsonify(data)
-
+    try:
+        payload = decode_token(token)
+        return render_template("dashboard.html", user=payload)
+    except:
+        return "Invalid token", 403
 
 @app.route("/admin")
-def admin_panel():
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    data = verify_token(token)
+def admin():
+    token = request.cookies.get("token")
+    if not token:
+        return redirect(url_for("login"))
 
-    if not data or data.get("role") != "admin":
-        return jsonify({"error": "Admins only"}), 403
+    try:
+        payload = decode_token(token)
+        if payload.get("role") != "admin":
+            return "Access denied: Admins only", 403
 
-    return jsonify({"message": "Welcome admin!"})
+        with open("flag.txt") as f:
+            flag = f.read()
+        return render_template("admin.html", flag=flag)
 
-
-@app.route("/admin/debug")
-def debug():
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    data = verify_token(token)
-
-    if not data or data.get("role") != "admin":
-        return jsonify({"error": "Admins only"}), 403
-
-    cmd = request.args.get("cmd")
-    return os.popen(cmd).read()  # 🔥 RCE
-
+    except Exception as e:
+        return "Invalid token", 403
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=9000)
