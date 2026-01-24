@@ -1,1 +1,1 @@
-uacCTF{PrivEscalation_Vuln_0penPORTS_R00TFLAG}
+uacCTF{oauth_is_not_auth}

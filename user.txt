@@ -1,1 +1,1 @@
-uacCTF{PrivEscalation_Vuln_0penPORTS_USERFLAG}
+uacCTF{jwt_trusts_the_wrong_things}
