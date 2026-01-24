@@ -1,6 +1,7 @@
-# Z‑Vuln‑Lab — Privilege Escalation (Medium)
+# Z-Vuln-Lab v5.0 — JWT & OAuth Auth Bypass
 
-This lab simulates a realistic local privilege escalation scenario within a containerized environment.
+This lab simulates modern authentication vulnerabilities involving JWT misuse and OAuth identity trust flaws.
+
 
 ## Scenario
 You have obtained a low-privilege shell on the system. Your goal is to identify misconfigurations or vulnerabilities to escalate your privileges to `root`.
@@ -17,8 +18,16 @@ Find and read the following flags:
 
 ### 1. Build & Run
 Execute the following commands to build the image and start the lab:
+=======
+## Objectives
+Find and read:
+- /home/player/user.txt
+- /root/root.txt
+>>>>>>> jwt-oauth
 
+## Setup
 ```bash
+
 # Build the Docker image
 docker build -t privesc .
 
@@ -61,3 +70,8 @@ player@4ab7cc9b6fb8:~$
 WalkThrough:
 
 Check out the <a href="WalkThrough.md">WalkThrough.md</a> if you're stuck.
+=======
+docker build -t jwt-oauth-lab .
+docker run -d -p 2222:22 -p 5000:5000 --name jwtlab jwt-oauth-lab
+ssh player@localhost -p 2222
+password: player
