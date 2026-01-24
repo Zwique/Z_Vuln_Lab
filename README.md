@@ -1,15 +1,37 @@
-# Z-Vuln-Lab v5.0 — JWT & OAuth Auth Bypass
+# Z-Vuln-Lab v5.0 — JWT Authentication Bypass
 
-This lab simulates modern authentication vulnerabilities involving JWT misuse and OAuth identity trust flaws.
+This lab demonstrates a common JWT implementation flaw where token verification is improperly handled.
 
-## Objectives
-Find and read:
-- /home/player/user.txt
-- /root/root.txt
+## Objective
+Obtain the admin flag by forging a JWT token.
 
 ## Setup
 ```bash
-docker build -t jwt-oauth-lab .
-docker run -d -p 2222:22 -p 5000:5000 --name jwtlab jwt-oauth-lab
-ssh player@localhost -p 2222
-password: player
+docker build -t jwt-auth-lab .
+docker run -d -p 9000:9000 --name jwt-auth jwt-auth-lab
+
+Visit: http://localhost:9000
+
+Credentials
+
+player:player
+
+
+---
+
+## 📄 WalkThrough.md
+
+```md
+# Walkthrough — JWT Auth Bypass
+
+## Step 1: Login as player
+POST /login → get JWT.
+
+## Step 2: Decode JWT
+Observe role=user.
+
+## Step 3: Forge JWT
+Change role to admin and use alg:none or exploit missing verification.
+
+## Step 4: Access /admin
+Use forged token to retrieve the flag.

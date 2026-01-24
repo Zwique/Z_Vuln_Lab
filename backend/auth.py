@@ -1,19 +1,15 @@
 import jwt
-from datetime import datetime, timedelta
+import datetime
 
-SECRET = "secret"  # Weak secret on purpose
+SECRET_KEY = "zwiqueishandsome123!"
 
 def create_token(username, role):
     payload = {
-        "user": username,
+        "sub": username,
         "role": role,
-        "exp": datetime.utcnow() + timedelta(hours=2)
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     }
-    return jwt.encode(payload, SECRET, algorithm="HS256")
+    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
-def verify_token(token):
-    try:
-        # 🔥 Accepts alg:none if attacker sets it
-        return jwt.decode(token, SECRET, options={"verify_signature": False})
-    except Exception:
-        return None
+def decode_token(token):
+    return jwt.decode(token, SECRET_KEY, options={"verify_signature": False})
