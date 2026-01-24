@@ -1,71 +1,68 @@
-#!/usr/bin/env python3
 from flask import Flask, request, jsonify
-import subprocess
 import os
+from auth import create_token, verify_token
+from oauth import process_oauth_login
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return jsonify({
-        "service": "Internal Backup Service",
-        "version": "1.0",
-        "endpoints": [
-            "/health",
-            "/backup"
-        ]
-    })
+USERS = {
+    "player": {"password": "player", "role": "user"},
+    "admin": {"password": "admin123", "role": "admin"},
+}
 
-@app.route('/health')
-def health():
-    return jsonify({"status": "healthy"})
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    user = USERS.get(data.get("username"))
 
-@app.route('/backup', methods=['POST'])
-def backup():
-    """
-    Backup endpoint - creates backup of specified directory
-    
-    Expected JSON:
-    {
-        "path": "/path/to/backup",
-        "destination": "/backup/location"
-    }
-    """
-    data = request.get_json()
-    
+    if user and user["password"] == data.get("password"):
+        token = create_token(data["username"], user["role"])
+        return jsonify({"token": token})
+
+    return jsonify({"error": "Invalid credentials"}), 401
+
+
+@app.route("/oauth-login", methods=["POST"])
+def oauth_login():
+    oauth_data = request.json  # attacker-controlled
+    user = process_oauth_login(oauth_data)
+    token = create_token(user["user"], user["role"])
+    return jsonify({"token": token})
+
+
+@app.route("/profile")
+def profile():
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    data = verify_token(token)
+
     if not data:
-        return jsonify({"error": "No JSON data provided"}), 400
-    
-    path = data.get('path', '/var/log')
-    destination = data.get('destination', '/tmp/backup')
-    
-    if '..' in path or '..' in destination:
-        return jsonify({"error": "Path traversal detected"}), 400
-    
-    if ';' in path or '&' in destination:
-        return jsonify({"error": "Invalid characters detected"}), 400
-    
-    command = f"tar -czf {destination}.tar.gz {path}"
-    
-    try:
-        result = subprocess.run(
-            command,
-            shell=True, # I guess it's fine.
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        
-        return jsonify({
-            "success": True,
-            "message": f"Backup created: {destination}.tar.gz",
-            "output": result.stdout
-        })
-    
-    except subprocess.TimeoutExpired:
-        return jsonify({"error": "Backup operation timed out"}), 500
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Invalid token"}), 403
 
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=False)
+    return jsonify(data)
+
+
+@app.route("/admin")
+def admin_panel():
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    data = verify_token(token)
+
+    if not data or data.get("role") != "admin":
+        return jsonify({"error": "Admins only"}), 403
+
+    return jsonify({"message": "Welcome admin!"})
+
+
+@app.route("/admin/debug")
+def debug():
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    data = verify_token(token)
+
+    if not data or data.get("role") != "admin":
+        return jsonify({"error": "Admins only"}), 403
+
+    cmd = request.args.get("cmd")
+    return os.popen(cmd).read()  # 🔥 RCE
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
