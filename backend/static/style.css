@@ -47,3 +47,21 @@ input {
   color: #22c55e;
   font-family: monospace;
 }
+
+
+.buttons {
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #4CAF50;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.btn.logout {
+  background-color: #f44336; /* Red for logout */
+}

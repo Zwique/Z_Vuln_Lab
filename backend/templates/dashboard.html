@@ -8,7 +8,11 @@
   <div class="container">
     <h2>Welcome, {{ user.sub }}</h2>
     <p>Your role: <strong>{{ user.role }}</strong></p>
-    <a href="/admin" class="btn">Admin Panel</a>
+
+    <div class="buttons">
+      <a href="/admin" class="btn">Admin Panel</a>
+      <a href="/logout" class="btn logout">Logout</a>
+    </div>
   </div>
 </body>
 </html>
