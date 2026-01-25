@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invalid Session</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>❌ Invalid credentials</h2>
+        <p>The username or password you entered is incorrect.</p>
+
+        <a href="{{ url_for('login') }}" class="btn">Try Again</a>
+    </div>
+</body>
+</html>
