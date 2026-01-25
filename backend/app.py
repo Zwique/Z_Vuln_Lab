@@ -22,7 +22,7 @@ def login():
             resp = make_response(redirect(url_for("dashboard")))
             resp.set_cookie("token", token)
             return resp
-        return "Invalid credentials", 403
+        return render_template("invalid.html")
     return render_template("login.html")
 
 @app.route("/dashboard")
@@ -46,7 +46,7 @@ def admin():
     try:
         payload = decode_token(token)
         if payload.get("role") != "admin":
-            return "Access denied: Admins only", 403
+            return render_template("error.html"), 403
 
         with open("flag.txt") as f:
             flag = f.read()
