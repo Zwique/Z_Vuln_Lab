@@ -35,6 +35,9 @@ Observe `role=user`.
 ## Step 3: Forge JWT
 
 Change `role` to `admin` and use `alg:none` or exploit missing verification.
+<img width="1354" height="498" alt="Screenshot 2026-01-24 at 19 00 01" src="https://github.com/user-attachments/assets/b0f2a46c-6f00-4349-8150-274ee15c1287" />
+
+
 
 ## Step 4: Access /admin
 
