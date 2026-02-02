@@ -26,19 +26,25 @@ Each lab exists in a separate branch:
 
 ---
 
-## 🏷️ Tags & Stable Releases
+## 🏷️ Tags & Releases
 
-Some branches are tagged to mark stable lab versions, for example:
+- 🔐 **v4.0-jwt-oauth**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
 
-- `v4.0-jwt-oauth` — Stable release of the JWT OAuth bypass lab
+- 🧗 **v3.0-privesc**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v3.0-privesc
 
-Tags allow you to reference exact versions for teaching, write-ups, or competitions.
+- 🧱 **v2.0-middleware**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v2.0-middleware
+
+- 🧬 **v1.0-ssti**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
 
 ---
 
 ## 🚀 How to Use
 
 ```bash
-git clone https://github.com/Zwique/Z-Vuln-Lab.git
-cd Z-Vuln-Lab
+git clone https://github.com/Zwique/Z_Vuln_Lab.git
+cd Z_Vuln_Lab
 git checkout jwt-oauth
