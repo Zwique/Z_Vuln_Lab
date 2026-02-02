@@ -10,19 +10,19 @@ Each lab exists in a separate branch:
 
 - 🔐 **JWT Auth Bypass (OAuth)**  
   Branch: `jwt-oauth`  
-  https://github.com/Zwique/Z-Vuln-Lab/tree/jwt-oauth
+  https://github.com/Zwique/Z_Vuln_Lab/tree/jwt-oauth
 
 - 🧗 **Privilege Escalation**  
   Branch: `privesc-v3`  
-  https://github.com/Zwique/Z-Vuln-Lab/tree/privesc-v3
+  https://github.com/Zwique/Z_Vuln_Lab/tree/privesc-v3
 
 - 🧱 **Middleware Vulnerabilities**  
   Branch: `middleware-v2`  
-  https://github.com/Zwique/Z-Vuln-Lab/tree/middleware-v2
+  https://github.com/Zwique/Z_Vuln_Lab/tree/middleware-v2
 
 - 🧬 **Server-Side Template Injection (SSTI)**  
   Branch: `ssti-v1`  
-  https://github.com/Zwique/Z-Vuln-Lab/tree/ssti-v1
+  https://github.com/Zwique/Z_Vuln_Lab/tree/ssti-v1
 
 ---
 
