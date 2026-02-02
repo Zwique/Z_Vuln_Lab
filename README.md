@@ -8,8 +8,8 @@ Z-Vuln-Lab is a hands-on web security lab series designed to help learners pract
 
 Each lab exists in a separate branch:
 
-- 🔗 **v5.0-http-smuggling**
-  Branch: `jwt-oauth` 
+- 🔥 **HTTP Request Smuggling**  
+  Branch: `http-smuggling-v5`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/http-smuggling-v5
 
 - 🔐 **JWT Auth Bypass (OAuth)**  
