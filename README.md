@@ -28,6 +28,9 @@ Each lab exists in a separate branch:
 
 ## 🏷️ Tags & Releases
 
+- 🔗 **v5.0-http-smuggling**
+  https://github.com/Zwique/Z_Vuln_Lab/tree/http-smuggling-v5 
+
 - 🔐 **v4.0-jwt-oauth**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
 
@@ -39,7 +42,6 @@ Each lab exists in a separate branch:
 
 - 🧬 **v1.0-ssti**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
-
 ---
 
 ## 🚀 How to Use
