@@ -1,15 +1,4 @@
 #!/usr/bin/env python3
-"""
-vulnerable_backend.py
-
-Intentionally vulnerable HTTP backend for request smuggling labs.
-
-Features:
-- Serves frontend UI from ../frontend/
-- Supports /submit and /admin endpoints
-- Parses both Content-Length and Transfer-Encoding: chunked
-- Leaves leftover bytes after chunked decoding → request smuggling vulnerability
-"""
 
 import socket
 import threading
