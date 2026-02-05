@@ -8,7 +8,13 @@ Participants must exploit this parsing mismatch to smuggle a hidden request and 
 
 ## 🧠 Vulnerability Overview
 
-**HTTP Request Smuggling** occurs when:
+- 🔥 **HTTP Request Smuggling**  
+  Branch: `http-smuggling-v5`  
+  https://github.com/Zwique/Z_Vuln_Lab/tree/http-smuggling-v5
+
+- 🔐 **JWT Auth Bypass (OAuth)**  
+  Branch: `jwt-oauth`  
+  https://github.com/Zwique/Z_Vuln_Lab/tree/jwt-oauth
 
 - A frontend server parses requests using **Content-Length**, and
 - A backend server parses requests using **Transfer-Encoding: chunked**,
@@ -21,32 +27,18 @@ This lab simulates that behavior in a single backend server to make the vulnerab
 
 ## 🎯 Objective
 
-Gain access to the protected endpoint:
+
+
+- 🔐 **v4.0-jwt-oauth**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
 
 GET /admin
 
 by smuggling it through a seemingly harmless request to:
 
-POST /submit
-
-### The backend:
-
-1. Accepts **both** `Content-Length` and `Transfer-Encoding` headers.
-2. Prioritizes **Transfer-Encoding: chunked**.
-3. **Fails to discard leftover bytes** after chunked decoding.
-4. Treats leftover bytes as a **new HTTP request**.
-
-This allows attackers to smuggle a second request inside the body of the first.
-
-## 🧪 Vulnerable Request Example
-
-```http
-POST /submit HTTP/1.1
-Host: test
-Content-Length: 13
-Transfer-Encoding: chunked
-
-0
+- 🧬 **v1.0-ssti**  
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
+---
 
 GET /admin HTTP/1.1
 Host: test
