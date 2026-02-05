@@ -48,3 +48,4 @@ Each lab exists in a separate branch:
 git clone https://github.com/Zwique/Z_Vuln_Lab.git
 cd Z_Vuln_Lab
 git checkout jwt-oauth
+
