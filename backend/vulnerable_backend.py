@@ -14,11 +14,15 @@ with open(os.path.join(BASE_DIR, "flag.txt"), "r") as f:
     FLAG = f.read().strip()
 
 CRLF = b"\r\n"
+MAX_HEADER_BYTES = 8192
+MAX_BODY_BYTES = 1024 * 1024
 
 
 def read_until_double_crlf(conn, initial=b""):
     buf = bytearray(initial)
     while b"\r\n\r\n" not in buf:
+        if len(buf) > MAX_HEADER_BYTES:
+            break
         data = conn.recv(4096)
         if not data:
             break
@@ -36,7 +40,9 @@ def parse_headers(header_bytes):
             continue
         if ":" in line:
             key, value = line.split(":", 1)
-            headers[key.strip().lower()] = value.strip()
+            key = key.strip().lower()
+            value = value.strip()
+            headers[key] = value
     return request_line, headers
 
 
@@ -144,6 +150,9 @@ def client_thread(conn, addr):
             header_data = read_until_double_crlf(conn, initial=leftover)
             if not header_data:
                 break
+            if len(header_data) > MAX_HEADER_BYTES:
+                conn.sendall(http_response(400, b"Headers too large\n"))
+                break
 
             parts = header_data.split(b"\r\n\r\n", 1)
             header_block = parts[0]
@@ -152,13 +161,22 @@ def client_thread(conn, addr):
             request_line, headers = parse_headers(header_block)
 
             body = b""
-            if "transfer-encoding" in headers and "chunked" in headers["transfer-encoding"].lower():
+            has_te = "transfer-encoding" in headers
+            has_cl = "content-length" in headers
+
+            if has_te and "chunked" in headers["transfer-encoding"].lower():
                 body, leftover = decode_chunked_body(conn, leftover)
-            elif "content-length" in headers:
+                if len(body) > MAX_BODY_BYTES:
+                    conn.sendall(http_response(413, b"Payload Too Large\n"))
+                    break
+            elif has_cl:
                 try:
                     length = int(headers["content-length"])
                 except ValueError:
                     length = 0
+                if length > MAX_BODY_BYTES:
+                    conn.sendall(http_response(413, b"Payload Too Large\n"))
+                    break
 
                 if len(leftover) >= length:
                     body = leftover[:length]
@@ -186,9 +204,10 @@ def client_thread(conn, addr):
 
             conn.sendall(response)
 
-            # Vulnerable behavior: leftover bytes are treated as a new request
-            if not leftover:
-                break
+            # Vulnerable behavior: treat leftover bytes as a new request
+            if leftover:
+                continue
+            break
     finally:
         try:
             conn.close()

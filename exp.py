@@ -2,6 +2,7 @@ import socket
 
 HOST = "127.0.0.1"
 PORT = 8000
+TIMEOUT_SECS = 2
 
 payload = (
     "POST /submit HTTP/1.1\r\n"
@@ -17,7 +18,18 @@ payload = (
     "\r\n"
 )
 
-with socket.create_connection((HOST, PORT)) as s:
+with socket.create_connection((HOST, PORT), timeout=TIMEOUT_SECS) as s:
     s.sendall(payload.encode())
-    response = s.recv(4096)
+    s.shutdown(socket.SHUT_WR)
+    chunks = []
+    while True:
+        try:
+            data = s.recv(4096)
+        except socket.timeout:
+            break
+        if not data:
+            break
+        chunks.append(data)
+
+    response = b"".join(chunks)
     print(response.decode(errors="ignore"))
