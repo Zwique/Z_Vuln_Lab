@@ -8,23 +8,23 @@ Z-Vuln-Lab is a hands-on web security lab series designed to help learners pract
 
 Each lab exists in a separate branch:
 
-- 🔥 **HTTP Request Smuggling**  
+- **HTTP Request Smuggling**  
   Branch: `http-smuggling-v5`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/http-smuggling-v5
 
-- 🔐 **JWT Auth Bypass (OAuth)**  
+- **JWT Auth Bypass (OAuth)**  
   Branch: `jwt-oauth`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/jwt-oauth
 
-- 🧗 **Privilege Escalation**  
+- **Privilege Escalation**  
   Branch: `privesc-v3`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/privesc-v3
 
-- 🧱 **Middleware Vulnerabilities**  
+- **Middleware Vulnerabilities**  
   Branch: `middleware-v2`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/middleware-v2
 
-- 🧬 **Server-Side Template Injection (SSTI)**  
+- **Server-Side Template Injection (SSTI)**  
   Branch: `ssti-v1`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/ssti-v1
 
@@ -32,18 +32,19 @@ Each lab exists in a separate branch:
 
 ## 🏷️ Tags & Releases
 
+- **v5.0-http-smuggling**
+  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v5.0-http-smuggling
 
-
-- 🔐 **v4.0-jwt-oauth**  
+- **v4.0-jwt-oauth**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
 
-- 🧗 **v3.0-privesc**  
+- **v3.0-privesc**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v3.0-privesc
 
-- 🧱 **v2.0-middleware**  
+- **v2.0-middleware**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v2.0-middleware
 
-- 🧬 **v1.0-ssti**  
+- **v1.0-ssti**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
 ---
 
