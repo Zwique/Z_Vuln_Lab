@@ -32,7 +32,7 @@ Each lab exists in a separate branch:
 
 ## 🏷️ Tags & Releases
 
-- **v5.0-http-smuggling**
+- **v5.0-http-smuggling**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v5.0-http-smuggling
 
 - **v4.0-jwt-oauth**  
