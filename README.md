@@ -39,7 +39,7 @@ by smuggling it through a seemingly harmless request to:
 - 🧬 **v1.0-ssti**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
 ---
-
+```
 GET /admin HTTP/1.1
 Host: test
 X-Admin: true
