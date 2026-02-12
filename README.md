@@ -8,13 +8,9 @@ Participants must exploit this parsing mismatch to smuggle a hidden request and 
 
 ## 🧠 Vulnerability Overview
 
-- 🔥 **HTTP Request Smuggling**  
+- **HTTP Request Smuggling**  
   Branch: `http-smuggling-v5`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/http-smuggling-v5
-
-- 🔐 **JWT Auth Bypass (OAuth)**  
-  Branch: `jwt-oauth`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/jwt-oauth
 
 - A frontend server parses requests using **Content-Length**, and
 - A backend server parses requests using **Transfer-Encoding: chunked**,
@@ -26,11 +22,6 @@ This lab simulates that behavior in a single backend server to make the vulnerab
 ---
 
 ## 🎯 Objective
-
-
-
-- 🔐 **v4.0-jwt-oauth**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
 
 GET /admin
 
