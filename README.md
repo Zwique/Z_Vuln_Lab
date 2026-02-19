@@ -1,4 +1,4 @@
-# Backup Management System – Vuln Lab
+# Pickle Deserialization – Vuln Lab
 
 This lab simulates a poorly designed internal backup dashboard built with Python Software Foundation Python and Pallets Projects Flask.
 
@@ -6,7 +6,7 @@ Developers implemented a feature that allows administrators to export and import
 
 Because the system is considered “internal-only”, security checks were skipped.
 
-As a result, the application contains an insecure deserialization vulnerability that allows attackers to achieve remote code execution (RCE).
+As a result, the application contains an pickle deserialization vulnerability that allows attackers to achieve remote code execution (RCE).
 
 ## Credentials
 
