@@ -51,6 +51,12 @@ RUN rm -f \
 # Fix ownership
 RUN chown -R zwique:zwique /app
 
+COPY flags/root.txt /root/root.txt
+RUN chmod 600 /root/root.txt
+
+COPY flags/user.txt /home/zwique/user.txt
+RUN chmod 644 /home/zwique/user.txt
+
 USER zwique
 
 EXPOSE 9000
