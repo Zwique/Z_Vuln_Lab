@@ -1,4 +1,4 @@
-# Backup Management System – CTF Lab
+# Backup Management System – Vuln Lab
 
 This lab simulates a poorly designed internal backup dashboard built with Python Software Foundation Python and Pallets Projects Flask.
 
