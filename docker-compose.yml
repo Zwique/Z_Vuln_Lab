@@ -1,0 +1,13 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  web:
+    build: .
+    ports:
+      - "9000:9000"
+    env_file: .env
+    depends_on:
+      - redis
+    restart: unless-stopped

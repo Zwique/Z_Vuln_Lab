@@ -1,0 +1,1 @@
+uacCTF{y0u_ARe_Th3-R00t_Perm1ssionOF-etc-passwd}
