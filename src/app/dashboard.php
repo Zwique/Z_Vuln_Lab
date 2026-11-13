@@ -15,7 +15,7 @@ if (!isset($_SESSION['user'])) {
 <body>
 
 <div class="header">
-  <div>🧪 SSTI Lab</div>
+  <div>Middleware Vulnerability Lab</div>
   <div>
     Hello <strong><?= htmlspecialchars($_SESSION['user']) ?></strong> ·
     <a href="api.php?action=logout">Logout</a>
