@@ -37,6 +37,12 @@ The root flag is at `/root/flag.txt` after the intended `www-data` to root exerc
 docker compose down
 ```
 
+The branch also includes a separate middleware-header exercise:
+
+```bash
+python3 exploit/exp.py id
+```
+
 ## What to study
 
 Template engines should treat user input as data and should never pass it to PHP `eval()`. The application, SUID helper, and command endpoint are deliberately unsafe for training; do not deploy this branch as a real service.
