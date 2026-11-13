@@ -8,9 +8,9 @@ This service provides REST API endpoints to create backups of system directories
 
 ## Security Features
 
-- Path traversal protection (`..` detection)  
-- Basic input validation (`;` and `&` filtering)  
-- Timeout protection (5 second limit)  
+- Path traversal protection (`..` detection)
+- Basic input validation (`;` and `&` filtering)
+- Timeout protection (5 second limit)
 - Runs with minimal required privileges
 
 ## Endpoints
@@ -56,8 +56,8 @@ Service runs on `http://127.0.0.1:5000`
 
 ## Security Audit (2024-Q4)
 
-Last security review: October 2024  
-Status: Passed  
+Last security review: October 2024
+Status: Passed
 Auditor: Internal Security Team
 
 Key findings:
