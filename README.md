@@ -1,90 +1,42 @@
-# Intentional Remote Code Execution Training Machine SSTI (Version 1.0)
+# Server-Side Template Injection Lab
 
-This project provides a deliberately vulnerable environment designed for security research, exploit development practice, and CTF‑style challenges.  
-Instead, it demonstrates a similar severity class vulnerability using a custom, insecure PHP backend.
+This lab demonstrates an intentionally unsafe PHP template preview. A logged-in user can save PHP code as a template; the preview endpoint evaluates it on the server and returns the output. The branch also contains an intentionally unsafe command endpoint for comparison with the middleware lab.
 
----
+> Run this lab only on localhost or an isolated training network. The template and admin endpoints execute code in the container.
 
-## Vulnerability Summary
+## Run it
 
-The main vulnerability is a **Remote Code Execution (RCE)** flaw caused by an intentionally unsafe template engine.
+Requirements: Docker with Compose.
 
-### Vulnerable Functions
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:8080> and log in with:
+
+```text
+Username: admin
+Password: Super3cret!Passw0rD
+```
+
+From another terminal, save and render a simple command-execution template with the included PoC:
+
+```bash
+python3 exploit/ssti.py
+```
+
+Or use the dashboard manually. Enter this template, save it, and select **Render Template**:
 
 ```php
-dangerous_template_render()
-dangerous_exec()
-shell_exec()
+<?php system('id'); ?>
 ```
 
-User-controlled template expressions inside {{ ... }} are executed directly on the server:
-```{{ id }}```
-This becomes:
-```
-shell_exec("id");
-```
+The root flag is at `/root/flag.txt` after the intended `www-data` to root exercise. Stop the lab with:
 
-# Features of This Lab
-
-- PHP 7.4 backend with intentionally insecure code
-
-- Custom template engine supporting full RCE
-
-- LFI vulnerability in `render.php?page=`
-
-- Weak login system
-
-- Unsafe file upload endpoint
-
-- Supports:
-
-    - Local File Inclusion (LFI)
-
-    - Remote Code Execution (RCE)
-
-- Simple HTML/JS frontend
-
-- Dockerized for easy deployment
-
-> [!NOTE]
-> PHP 7.4 backend with intentionally insecure code
-
-🚀 Running the Machine
-
-Build and start:
-
-```docker-compose build
-docker-compose up
+```bash
+docker compose down
 ```
 
+## What to study
 
-## Access at:
-
-http://localhost:8080/
-
-🧪 Exploitation Examples
-RCE (Template Injection)
-```POST /api/render.php
-page={{ id }}
-```
-LFI (Read System Files)
-```
-GET /api/render.php?page=../../../../etc/passwd
-```
-### Using the Provided PoC Script
-```
-python3 exp.py lfi /etc/passwd
-python3 exp.py rce "id"
-```
-### PoC
-<img width="1048" height="541" alt="example" src="https://github.com/user-attachments/assets/4f245f97-70dd-45e8-b0c6-c7b81b2db2e7" />
-
----
-
-## Privilege Escalation
-
-After achieving Remote Code Execution as the **www-data** user, privilege escalation to **root** is possible due to an intentional sudo misconfiguration inside the container.
-
-### Misconfiguration
-
-The Docker image grants the web server user passwordless sudo access to PHP. So, try reading the flag in `/root/flag.txt`
+Template engines should treat user input as data and should never pass it to PHP `eval()`. The application, SUID helper, and command endpoint are deliberately unsafe for training; do not deploy this branch as a real service.

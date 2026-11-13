@@ -1,26 +1,26 @@
-version: '3.8'
-
 services:
   web:
     build: .
     ports:
       - "8080:80"
-    volumes:
-      - ./src/app:/var/www/html
-      - ./src/app/uploads:/var/www/html/uploads
     environment:
       MYSQL_HOST: db
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: vulnlab
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mariadb:10.6
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: vulnlab
     volumes:
-      - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -proot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20

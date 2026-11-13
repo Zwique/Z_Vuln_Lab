@@ -27,14 +27,14 @@ if (!isset($_SESSION['user'])) {
   <div class="card">
     <h3>Save Template <span class="danger">UNSAFE</span></h3>
     <p class="subtext">
-      This template is rendered server‑side without sanitization.
+      This template is evaluated server-side without sanitization.
     </p>
 
     <form method="POST" action="api.php?action=render_template">
       <textarea
         name="template"
         rows="6"
-        placeholder="Hello {{whoami}}"
+        placeholder="<?php system('id'); ?>"
       ></textarea>
 
       <br><br>
@@ -45,7 +45,7 @@ if (!isset($_SESSION['user'])) {
   <div class="card">
     <h3>Preview</h3>
     <p class="subtext">
-      Execute the template using the server template engine.
+      Evaluate the saved PHP template on the server.
     </p>
 
     <a class="btn" href="api.php?action=preview">Render Template</a>
