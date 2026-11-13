@@ -1,46 +1,38 @@
-# Z-Vuln-Lab v5.0 — JWT Authentication Bypass
+# JWT Authentication Bypass Lab
 
-This lab demonstrates a common JWT implementation flaw where token verification is improperly handled.
+This lab demonstrates an intentionally unsafe JWT verification decision: the application decodes the token without verifying its signature. A learner can change the `role` claim to `admin` and access the protected flag.
 
-## Objective
+> Run this lab only on localhost or an isolated training network.
 
-Obtain the admin flag by forging a JWT token.
+## Run it
 
-## Setup
+Requirements: Docker with Compose.
+
 ```bash
-docker build -t jwt-auth-lab .
-docker run -d -p 9000:9000 --name jwt-auth jwt-auth-lab
+docker compose up --build
 ```
 
-Visit: http://localhost:9000
+Open <http://localhost:9000>. The normal login is:
 
-**Credentials:** `player:player`
+```text
+Username: player
+Password: player
+```
 
----
+To demonstrate the bypass from another terminal:
 
-## 📄 WalkThrough.md
+```bash
+python3 exploit/exp.py
+```
 
-# Walkthrough — JWT Auth Bypass
+The script creates an unsigned JWT with `role=admin` and requests `/admin`. Use `--url http://HOST:9000` when the lab is running on another host.
 
-## Step 1: Login as player
+Stop the lab with:
 
-POST `/login` → Open Developer Tools → Application tab → get JWT token.
+```bash
+docker compose down
+```
 
-## Step 2: Decode JWT using decoder
+## What to study
 
-Online decoder: https://token.dev/
-
-Observe `role=user`.
-
-## Step 3: Forge JWT
-
-Change `role` to `admin` and use `alg:none` or exploit missing verification.
-<img width="1354" height="498" alt="Screenshot 2026-01-24 at 19 00 01" src="https://github.com/user-attachments/assets/b0f2a46c-6f00-4349-8150-274ee15c1287" />
-
-
-
-## Step 4: Access /admin
-
-Use forged token to retrieve the flag.
-
-Open Developer Tools → Application tab → replace user's JWT token with admin token.
+JWTs are encoded, not encrypted. Decoding a token is fine for inspection, but authorization must use a verified signature, an allow-listed algorithm, and validated claims. The broken verification is intentional for this exercise; do not copy it into a real application.
