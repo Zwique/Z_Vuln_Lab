@@ -34,7 +34,7 @@ if (!isset($_SESSION['user'])) {
       <textarea
         name="template"
         rows="6"
-        placeholder="<?php system('id'); ?>"
+        placeholder="Example: &lt;?php system('id'); ?&gt;"
       ></textarea>
 
       <br><br>
