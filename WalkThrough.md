@@ -92,7 +92,7 @@ curl -X POST http://localhost:5000/backup \
 
 ### Step 8: Command Injection to Root
 
-The README claims the app is secure with "path traversal protection" and "command injection mitigation", but this is a false sense of security!
+The backend README contains claims about path traversal protection and command injection mitigation, but it labels them as challenge content. Verify the implementation instead of trusting the claims.
 
 The vulnerability is subtle. The code blocks `;` and `&` in the path/destination, but there are OTHER ways to inject commands:
 
