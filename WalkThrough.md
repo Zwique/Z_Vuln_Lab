@@ -1,7 +1,7 @@
 # Privilege Escalation Lab - Walkthrough
 
 ## Scenario
-You've obtained SSH access as the `player` user. Your goal is to escalate to root and read the flag at `/root/flag.txt`.
+You've obtained SSH access as the `player` user. Your goal is to escalate to root and read the flag at `/root/root.txt`.
 
 ## Solution Path
 
@@ -15,7 +15,7 @@ ssh player@localhost -p 2222
 
 Use this command to get user's flag
 ```bash
-cat user.txt
+cat /home/player/user.txt
 ```
 
 Check running processes:

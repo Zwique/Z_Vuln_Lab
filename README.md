@@ -1,63 +1,36 @@
-# Z‑Vuln‑Lab — Privilege Escalation (Medium)
+# Container Privilege Escalation Lab
 
-This lab simulates a realistic local privilege escalation scenario within a containerized environment.
+This lab gives you an SSH shell as a low-privilege `player` user inside a container. Your goal is to enumerate the services, review the internal backup service, exploit its command-injection flaw, and read the root flag.
 
-## Scenario
-You have obtained a low-privilege shell on the system. Your goal is to identify misconfigurations or vulnerabilities to escalate your privileges to `root`.
+> Run this lab only on localhost or an isolated training network. The container intentionally runs a vulnerable service as root.
 
-### Objectives
-Find and read the following flags:
-1. `/home/player/user.txt`
-2. `/root/root.txt`
+## Run it
 
-
----
-
-## Setup Instructions
-
-### 1. Build & Run
-Execute the following commands to build the image and start the lab:
+Requirements: Docker with Compose.
 
 ```bash
-# Build the Docker image
-docker build -t privesc .
-
-# Start the container
-docker run -d -p 2222:22 --name lab privesc
+docker compose up --build -d
+ssh player@127.0.0.1 -p 2222
 ```
 
-2. Access the System
-Log in as the user player using the password player.
-
-`player:player`
-
+The SSH password is `player`. If you reuse the port and see a host-key warning, remove only this lab's key:
 
 ```bash
-➜  SSTI_Vuln git:(privesc-only) ✗ ssh player@localhost -p 2222
-player@localhost's password: 
-Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.12.54-linuxkit aarch64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
-
-This system has been minimized by removing packages and content that are
-not required on a system that users do not log into.
-
-To restore this content, you can run the 'unminimize' command.
-Last login: Mon Jan 19 21:15:20 2026 from 192.168.65.1
-player@4ab7cc9b6fb8:~$ whoami
-player
-player@4ab7cc9b6fb8:~$ 
+ssh-keygen -R "[127.0.0.1]:2222"
 ```
 
+The objectives are:
 
-> [!WARNING]
-> If you see something `WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!`, use `ssh-keygen -R "[localhost]:2222"` command to remove old host keys.
+1. Read `/home/player/user.txt`.
+2. Escalate to root through the intentionally vulnerable internal backup service.
+3. Read `/root/root.txt`.
 
-> [!IMPORTANT]
-> This lab uses binaries compiled for both ARM64 and x86_64.
+The complete walkthrough is in [WalkThrough.md](WalkThrough.md). Stop the lab with:
 
-WalkThrough:
+```bash
+docker compose down
+```
 
-Check out the <a href="WalkThrough.md">WalkThrough.md</a> if you're stuck.
+## What to study
+
+The exercise combines service enumeration, SSH port forwarding, source review, command injection, and excessive service privileges. The blacklist checks in the backup service are intentionally incomplete; the walkthrough explains why allowlists and argument arrays are safer.
