@@ -20,8 +20,8 @@ RUN gcc /tmp/checksys.c -o /usr/local/bin/checksys \
 RUN echo 'uacCTF{SUID_PATH_HIJACK_PWNED}' > /root/flag.txt \
     && chmod 600 /root/flag.txt
 
-# Copy web app files (excluding static to handle separately)
-COPY src/app/*.php src/app/util.php src/app/api.php src/app/config.php /var/www/html/
+# Copy PHP application files and static assets.
+COPY src/app/*.php /var/www/html/
 COPY src/app/api/ /var/www/html/api/
 COPY src/app/static/ /var/www/html/static/
 
