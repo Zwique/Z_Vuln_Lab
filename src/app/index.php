@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>SSTI Vuln Lab Version 2.0</title>
+  <title>Server-Side Template Injection Lab</title>
   <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
 
 <div class="wrapper">
   <div class="card">
-    <h1>🧪 SSTI Vuln Lab</h1>
+    <h1>Server-Side Template Injection Lab</h1>
     <p class="subtext">Intentionally vulnerable PHP lab</p>
 
     <form method="POST" action="api.php?action=login">
@@ -19,7 +19,7 @@
       <button>Login</button>
     </form>
 
-    <p class="subtext">⚠️ Never deploy on the internet</p>
+    <p class="subtext">Do not deploy this lab on the internet.</p>
   </div>
 </div>
 

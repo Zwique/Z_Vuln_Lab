@@ -16,7 +16,7 @@ RUN gcc /tmp/checksys.c -o /usr/local/bin/checksys \
     && chmod 4755 /usr/local/bin/checksys \
     && rm /tmp/checksys.c
 
-# 🚩 Root flag
+# Root flag
 RUN echo 'uacCTF{SUID_PATH_HIJACK_PWNED}' > /root/flag.txt \
     && chmod 600 /root/flag.txt
 

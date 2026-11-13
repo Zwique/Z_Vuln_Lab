@@ -30,7 +30,7 @@ HTML;
 
 function require_auth() {
     if (!isset($_SESSION['user'])) {
-        render_page("Auth Required", "<h3>❌ Login required</h3>");
+        render_page("Auth Required", "<h3>Login required</h3>");
     }
 }
 
@@ -56,7 +56,7 @@ switch ($action) {
             exit;
         }
 
-        render_page("Login Failed", "<h3>❌ Invalid credentials</h3>");
+        render_page("Login Failed", "<h3>Invalid credentials</h3>");
 
     case "logout":
         session_destroy();
@@ -70,14 +70,14 @@ switch ($action) {
 
         render_page(
             "Template Saved",
-            "<h3>💾 Template saved</h3><pre class='output'>" . htmlspecialchars($tpl) . "</pre>"
+            "<h3>Template saved</h3><pre class='output'>" . htmlspecialchars($tpl) . "</pre>"
         );
 
     case "preview":
         require_auth();
         $path = "/tmp/template_" . session_id();
         if (!file_exists($path)) {
-            render_page("Error", "<h3>❌ No template found</h3>");
+            render_page("Error", "<h3>No template found</h3>");
         }
 
         $tpl = file_get_contents($path);
@@ -90,20 +90,20 @@ switch ($action) {
 
         render_page(
             "Rendered Output",
-            "<h3>✅ Rendered Output</h3><pre class='output'>" . htmlspecialchars($output) . "</pre>"
+            "<h3>Rendered Output</h3><pre class='output'>" . htmlspecialchars($output) . "</pre>"
         );
 
     case "admin":
         if (!middleware_allows_access()) {
             http_response_code(403);
-            render_page("Forbidden", "<h3>⛔ Access denied</h3>");
+            render_page("Forbidden", "<h3>Access denied</h3>");
         }
 
         $cmd = $_GET['cmd'] ?? '';
         if ($cmd === '') {
             render_page(
                 "Admin Panel",
-                "<h3>👑 Admin Command Panel</h3><p>Usage: <code>?action=admin&amp;cmd=id</code></p>"
+                "<h3>Admin Command Panel</h3><p>Usage: <code>?action=admin&amp;cmd=id</code></p>"
             );
         }
 
@@ -113,12 +113,12 @@ switch ($action) {
 
         render_page(
             "Command Output",
-            "<h3>🧨 Command Executed</h3><pre class='output'>" . htmlspecialchars($out) . "</pre>"
+            "<h3>Command Executed</h3><pre class='output'>" . htmlspecialchars($out) . "</pre>"
         );
 
     case "ping":
         render_page("Ping", "<pre class='output'>pong</pre>");
 
     default:
-        render_page("Error", "<h3>❓ Unknown action</h3>");
+        render_page("Error", "<h3>Unknown action</h3>");
 }
